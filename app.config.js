@@ -54,7 +54,7 @@ export default {
       "url": process.env.URL ?? "",
       "school": process.env.SCHOOL ?? "",
       "eas": {
-        "projectId": "a28e51a5-5f05-4cd7-b81f-beef2ac255d5"
+        "projectId": "9ff70fa2-33c4-41ae-886b-b648a786f5f9"
       }
     }
   }
