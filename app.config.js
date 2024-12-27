@@ -1,10 +1,14 @@
+const appName = "giua@school/app";
+const appVersion = "3.1";
+
 export default {
   "expo": {
-    "name": "giua@school/app",
-    "descrition": "Web app per il registro scolastico giua@school",
+    "name": appName,
+    "version": appVersion,
     "slug": "giuaschool-app",
-    "version": "3.1",
+    "descrition": "Web app per il registro scolastico giua@school",
     "githubUrl": "https://github.com/iisgiua/giuaschool-app",
+    "owner": "iisgiua",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
     "splash": {
@@ -50,7 +54,7 @@ export default {
       ]
     ],
     "extra": {
-      "version": "giua@school/app 3.1",
+      "version": `${appName} ${appVersion}`,
       "url": process.env.URL ?? "",
       "school": process.env.SCHOOL ?? "",
       "eas": {
