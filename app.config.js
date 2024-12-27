@@ -33,7 +33,7 @@ export default {
       }
     },
     "android": {
-      "package": "it.iisgiua.giuaschool-app",
+      "package": "it.iisgiua.giuaschool_app",
       "adaptiveIcon": {
       },
       "permissions": [
