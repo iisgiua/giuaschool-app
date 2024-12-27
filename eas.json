@@ -1,24 +1,27 @@
 {
   "cli": {
-    "version": ">= 2.8.0"
+    "version": ">= 2.8.0",
+     "appVersionSource": "remote"
   },
   "build": {
     "devel": {
       "developmentClient": true,
-      "distribution": "internal",
+      "distribution": "internal"
     },
     "custom": {
       "distribution": "internal",
+      "autoIncrement": true,
       "android": {
         "buildType": "apk"
       },
       "env": {
         "URL": "https://registro.giua.edu.it/",
-        "SCHOOL": "I.I.S. Michele Giua",
+        "SCHOOL": "I.I.S. Michele Giua"
       }
     },
     "prod": {
       "distribution": "internal",
+      "autoIncrement": true,
       "android": {
         "buildType": "apk"
       }

@@ -1,3 +1,5 @@
-.expo/
-docker/
-node_modules/
+/.git/
+/.expo/
+/.vscode/
+/docker/
+/node_modules/

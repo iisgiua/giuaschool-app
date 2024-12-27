@@ -1,13 +1,67 @@
-import { StyleSheet } from 'react-native';
+import { Stack } from 'expo-router';
+import { StatusBar } from 'expo-status-bar';
+import { SafeAreaView, StyleSheet } from 'react-native';
 
 
-// definizione stili
-export default StyleSheet.create({
+// imposta pagina iniziale
+export const unstable_settings = {
+  initialRouteName: 'index',
+};
+
+// impostazioni perla visualizzazione su tutte le pagine
+export default function Layout() {
+  return (
+    <SafeAreaView style={styles.container}>
+      <StatusBar style="light" backgroundColor="#000000" />
+      <Stack
+        screenOptions={{
+          headerStyle: {
+            backgroundColor: '#5c6f82',
+          },
+          headerTintColor: '#ffffff',
+          headerTitleStyle: {
+            fontWeight: 'bold',
+          },
+        }}
+      >
+        <Stack.Screen name="index" />
+        {/* <Stack.Screen
+          name="modal"
+          options={{
+            presentation: 'transparentModal',
+            animation: 'fade',
+            headerShown: false,
+          }}
+        /> */}
+      </Stack>
+    </SafeAreaView>
+  );
+}
+
+// definizione degli stili utilizzati
+export const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 10,
+    padding: 0,
     backgroundColor: '#eeeeee',
   },
+
+  link: {
+    fontSize: 18,
+    color: "#007BFF",
+    marginVertical: 10,
+  },
+
+  text:{
+    fontSize: 16,
+    color: '#000000',
+    paddingLeft: 15,
+    paddingRight: 15,
+    paddingTop: 5,
+    paddingBottom: 5,
+    backgroundColor: '#dddddd',
+  },
+
   logoContainer: {
     alignItems: 'center',
     padding: 10,
