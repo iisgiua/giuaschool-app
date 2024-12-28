@@ -2,6 +2,7 @@ import { Stack } from 'expo-router';
 import { Link } from "expo-router";
 import { View, Text } from "react-native";
 import { styles } from "./_layout"; // Import degli stili condivisi
+import Constants from 'expo-constants';
 
 export default function DetailsScreen() {
   return (
@@ -15,6 +16,10 @@ export default function DetailsScreen() {
       <Link href="/" style={styles.link}>
         Torna alla Home
       </Link>
+      <Text>url: {Constants.expoConfig.extra.url}</Text>
+      <Text>scuola: {Constants.expoConfig.extra.school}</Text>
+      <Text>version: {Constants.expoConfig.extra.version}</Text>
+
     </View>
   );
 }

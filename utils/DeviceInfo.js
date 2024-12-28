@@ -1,10 +1,21 @@
+/*
+ * SPDX-FileCopyrightText: 2022 I.I.S. Michele Giua - Cagliari - Assemini
+ *
+ * SPDX-License-Identifier: AGPL-3.0-or-later
+ */
+
+import * as Crypto from 'expo-crypto';
 import * as Device from 'expo-device';
-import * as Crypto  from 'expo-crypto';
 
 
-// genera un ID univoco per il dispositivo
+// **
+// * Funzione per generare un codice univoco per il dispositivo
+// *
+// * @author Antonello Dessì
+// *
 export async function createDeviceId() {
-  let info =
+  // info sul dispositivo
+  const info =
     Device.brand + '/' +
     Device.modelName + '/' +
     Device.deviceType + '/' +
@@ -13,6 +24,8 @@ export async function createDeviceId() {
     Device.osVersion + '/' +
     Device.osBuildId + '/' +
     Device.osInternalBuildId;
-  let token = await Crypto.digestStringAsync(Crypto.CryptoDigestAlgorithm.SHA256, info);
+  // crea impronta
+  const token = await Crypto.digestStringAsync(Crypto.CryptoDigestAlgorithm.SHA256, info);
+  // restituisce impronta
   return token;
 }

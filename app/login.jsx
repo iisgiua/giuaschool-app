@@ -3,7 +3,7 @@ import { Button, Text, View } from 'react-native';
 import * as WebBrowser from 'expo-web-browser';
 import { styles } from './_layout';
 import * as SecureStore from 'expo-secure-store';
-import CookieManager from '@react-native-cookies/cookies';
+// import CookieManager from '@react-native-cookies/cookies';
 
 
 export default function LoginScreen() {
@@ -54,16 +54,16 @@ export default function LoginScreen() {
     const sessionID = data3['session']
     console.warn('--> SESSIONID: ', sessionID);
 
-    // set a cookie
-    const done = await CookieManager.set(web, {
-      name: 'PHPSESSID',
-      value: sessionID,
-      // domain: 'some domain',
-      path: '/',
-      version: '1',
-      expires: '2025-05-30T12:30:00.00-05:00'
-    });
-    console.warn('--> done: ', done);
+    // // set a cookie
+    // const done = await CookieManager.set(web, {
+    //   name: 'PHPSESSID',
+    //   value: sessionID,
+    //   // domain: 'some domain',
+    //   path: '/',
+    //   version: '1',
+    //   expires: '2025-05-30T12:30:00.00-05:00'
+    // });
+    // console.warn('--> done: ', done);
 
     // document.cookie = `SESSIONID=${sessionID}; path=/; secure`;
     await WebBrowser.openAuthSessionAsync(web);

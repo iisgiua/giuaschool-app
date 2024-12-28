@@ -8,11 +8,11 @@ export const unstable_settings = {
   initialRouteName: 'index',
 };
 
-// impostazioni perla visualizzazione su tutte le pagine
+// impostazioni di visualizzazione su tutte le pagine
 export default function Layout() {
   return (
     <SafeAreaView style={styles.container}>
-      <StatusBar style="light" backgroundColor="#000000" />
+      <StatusBar style='light' backgroundColor='#000000' />
       <Stack
         screenOptions={{
           headerStyle: {
@@ -24,31 +24,144 @@ export default function Layout() {
           },
         }}
       >
-        <Stack.Screen name="index" />
-        {/* <Stack.Screen
-          name="modal"
+        <Stack.Screen name='index' />
+        <Stack.Screen
+          name='modal'
           options={{
             presentation: 'transparentModal',
-            animation: 'fade',
             headerShown: false,
           }}
-        /> */}
+        />
       </Stack>
     </SafeAreaView>
   );
 }
 
-// definizione degli stili utilizzati
+// definizione degli stili
 export const styles = StyleSheet.create({
   container: {
     flex: 1,
+    margin: 0,
     padding: 0,
     backgroundColor: '#eeeeee',
   },
+  modalContainer: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
+  modalContent: {
+    width: '80%',
+    marginVertical: 50,
+    borderRadius: 10,
+    padding: 20,
+    alignItems: 'center',
+    backgroundColor: '#ffffff',
+    elevation: 5, // solo Android
+    shadowColor: '#000000', // solo IOS
+    shadowOffset: { width: 0, height: 5 }, // solo IOS
+    shadowOpacity: 0.25, // solo IOS
+    shadowRadius: 5, // solo IOS
+  },
+  modalTitle: {
+    marginBottom: 20,
+    fontSize: 20,
+    fontWeight: 'bold',
+  },
+  modalTitleError: {
+    marginBottom: 20,
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#990000',
+  },
+  modalTitleSuccess: {
+    marginBottom: 20,
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#009900',
+  },
+  modalMessage: {
+    marginBottom: 30,
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  pageContainer: {
+    padding: 20,
+  },
+  inputGroup: {
+    marginBottom: 20,
+  },
+  inputLabel: {
+    marginBottom: 2,
+    fontSize: 16,
+    fontWeight: 'bold',
+    textAlign: 'left',
+  },
+  inputField: {
+    paddingHorizontal: 10,
+    paddingVertical: 8,
+    borderWidth: 0.5,
+    borderRadius: 8,
+    borderColor: '#000000',
+    fontSize: 16,
+    fontWeight: 'bold',
+    backgroundColor: '#ffffff',
+    color: '#000099',
+  },
+  inputFieldDisabled: {
+    paddingHorizontal: 10,
+    paddingVertical: 8,
+    borderWidth: 0.5,
+    borderRadius: 8,
+    borderColor: '#000000',
+    fontSize: 16,
+    fontWeight: 'bold',
+    backgroundColor: '#ffffff',
+    color: '#aaaaaa',
+  },
+  checkboxContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  checkbox: {
+    margin: 10,
+  },
+  buttonGroup: {
+    marginVertical: 30,
+    marginHorizontal: 15,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  buttonPrimary: {
+    paddingHorizontal: 15,
+    paddingVertical: 8,
+    borderWidth: 0.5,
+    borderRadius: 8,
+    borderColor: '#000000',
+    fontSize: 18,
+    fontWeight: 'bold',
+    backgroundColor: '#0066cc',
+    color: '#ffffff',
+  },
+  buttonSecondary: {
+    paddingHorizontal: 15,
+    paddingVertical: 8,
+    borderWidth: 0.5,
+    borderRadius: 8,
+    borderColor: '#000000',
+    fontSize: 18,
+    fontWeight: 'bold',
+    backgroundColor: '#5c6f82',
+    color: '#ffffff',
+  },
+
+//----
+
 
   link: {
     fontSize: 18,
-    color: "#007BFF",
+    color: '#007BFF',
     marginVertical: 10,
   },
 
@@ -88,13 +201,6 @@ export const styles = StyleSheet.create({
     marginTop: 0,
     marginBottom: 10,
   },
-  label: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    textAlign: 'left',
-    marginTop: 5,
-    marginBottom: 2,
-  },
   labelDisabled: {
     fontSize: 16,
     fontWeight: 'bold',
@@ -103,47 +209,8 @@ export const styles = StyleSheet.create({
     marginBottom: 2,
     color: '#aaaaaa',
   },
-  picker: {
-    paddingVertical: 0,
-    borderWidth: 0.5,
-    borderRadius: 8,
-    borderColor: '#000000',
-    backgroundColor: '#ffffff',
-  },
-  pickerItem: {
-    fontSize: 16,
-    color: '#000099',
-  },
-  input: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    paddingHorizontal: 10,
-    paddingVertical: 8,
-    borderWidth: 0.5,
-    borderRadius: 8,
-    borderColor: '#000000',
-    backgroundColor: '#ffffff',
-    color: '#000099',
-  },
-  passwordContainer: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    borderWidth: 0.5,
-    borderRadius: 8,
-    borderColor: '#000000',
-    backgroundColor: '#ffffff',
-    paddingRight: 5,
-    paddingLeft: 10,
-  },
-  password: {
-    flex: 1,
-    fontSize: 16,
-    fontWeight: 'bold',
-    paddingVertical: 8,
-    backgroundColor: '#ffffff',
-    color: '#000099',
-  },
+
+
   icon: {
     backgroundColor: '#ffffff',
     color: '#000000',
@@ -151,82 +218,14 @@ export const styles = StyleSheet.create({
     paddingVertical: 10,
     fontSize: 20,
   },
-  buttonContainer: {
-    elevation: 8,
-    marginVertical: 30,
-    marginHorizontal: 10,
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-  buttonPrimary: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    borderWidth: 0.5,
-    borderRadius: 8,
-    borderColor: '#000000',
-    paddingHorizontal: 15,
-    paddingVertical: 8,
-    backgroundColor: '#0066cc',
-    color: '#ffffff',
-  },
-  buttonSecondary: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    borderWidth: 0.5,
-    borderRadius: 8,
-    borderColor: '#000000',
-    paddingHorizontal: 15,
-    paddingVertical: 8,
-    backgroundColor: '#5c6f82',
-    color: '#ffffff',
-  },
-  buttonDisabled: {
-    fontSize: 18,
-    borderWidth: 0.5,
-    borderRadius: 8,
-    borderColor: '#000000',
-    paddingHorizontal: 15,
-    paddingVertical: 8,
-    backgroundColor: '#cccccc',
-    color: '#666666',
-  },
+
   spacedContainer: {
     flex: 1,
     marginVertical: 30,
     marginHorizontal: 10,
     alignItems: 'center',
   },
-  modalContainer: {
-    alignItems: 'center',
-    justifyContent: 'flex-start',
-    borderWidth: 0.5,
-    borderRadius: 8,
-    borderColor: '#000000',
-    padding: 10,
-    marginVertical: 50,
-    marginHorizontal: 10,
-  },
-  modalTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    textAlign: 'center',
-    marginBottom: 20,
-  },
-  modalMessage: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    marginBottom: 30,
-  },
-  checkboxContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  checkbox: {
-    padding: 8,
-    margin: 10,
-  },
+
   hidden: {
     margin: 0,
     width: 1,
