@@ -2,21 +2,19 @@
   "build": {
     "devel": {
       "environment": "development",
-      "node": "22",
       "developmentClient": true,
       "distribution": "internal"
     },
     "preview": {
       "environment": "preview",
-      "node": "22",
       "distribution": "internal",
       "android": {
+        "withoutCredentials": true,
         "buildType": "apk",
       }
     },
     "custom": {
       "environment": "production",
-      "node": "22",
       "distribution": "internal",
       "android": {
         "buildType": "apk"
@@ -28,7 +26,6 @@
     },
     "prod": {
       "environment": "production",
-      "node": "22",
       "distribution": "internal",
       "android": {
         "buildType": "apk"
