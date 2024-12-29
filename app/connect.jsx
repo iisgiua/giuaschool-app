@@ -1,9 +1,11 @@
+import Constants from 'expo-constants';
 import { Stack } from 'expo-router';
 import * as SecureStore from 'expo-secure-store';
 import { useEffect, useRef, useState } from 'react';
-import { ActivityIndicator, Text, View } from 'react-native';
+import { Text, View } from 'react-native';
 import { WebView } from 'react-native-webview';
 import Pressable from '../components/PressableComponent';
+import Waiting from '../components/WaitingComponent';
 import { createDeviceId } from '../utils/DeviceInfo';
 import { styles } from './_layout';
 
@@ -15,43 +17,24 @@ export default function ConnectScreen() {
   const [web, setWeb] = useState('');
   const [device, setDevice] = useState('');
   const [stage, setStage] = useState(0);
+  const [error, setError] = useState('');
   const webViewRef = useRef(null);
-
-
-
-
-  // mostra icona di attesa
-  const waitingComponent = () => {
-    return (
-      <ActivityIndicator
-        color='#000099'
-        size='large'
-        style={{
-          position: 'absolute',
-          alignItems: 'center',
-          justifyContent: 'center',
-          left: 0,
-          right: 0,
-          top: 0,
-          bottom: 0,
-        }}
-      />
-    );
-  };
 
   // gestione cambio pagina
   const navigationChanged = (event) => {
     const url = event.url + (event.url.endsWith('/') ? '' : '/');
-    console.warn('URL: ' + url + ' *** ' + web);
-
     if (url == web) {
+      // login effettuato con successo
       setStage(2);
     }
-
   };
 
   // connessione app
   const connect = async () => {
+
+    setError('Ok, connect');
+    setStage(9);
+
     console.warn('connect: ' + device);
     const url = web + 'app/device';
     const urlLogout = web + 'logout/';
@@ -85,88 +68,84 @@ export default function ConnectScreen() {
 
   // eseguito solo al primo render
   useEffect(() => {
-    let result = SecureStore.getItem('userData');
+    // legge dati dalla memoria
+    const result = SecureStore.getItem('userData');
     if (result) {
-      let state = JSON.parse(result);
+      const state = JSON.parse(result);
       setWeb(state.web);
     }
-
-    (async () => {
-      const token = await createDeviceId();
-      setDevice(token);
-    })();
-
+    // crea codice univoco per il dispositivo
+    createDeviceId()
+      .then((id) => {
+        setDevice(id);
+      });
   }, []);
 
-
-  // mostra pagina
+  // visualizza pagina
   return (
-    <View style={styles.container}>
+    <View style={styles.pageContainer}>
       <Stack.Screen
         options={{
           title: 'Associa il dispositivo',
         }}
       />
-      {stage === 0 && (
+      {stage == 0 && (
         <View>
           <Text style={styles.text}>
-            Questo dispositivo sarà associato al Registro Elettronico in modo che non sia più necessario
-            usare le credenziali per collegarti.
+            Questo dispositivo sarà associato al tuo utente sul registro elettronico,
+            in modo che non sia più necessario usare le tue credenziali per collegarti.
           </Text>
           <Text style={styles.text}>
-            Dovrai ora effettuare il normale accesso al Registro Elettronico e subito dopo l'applicazione
-            prenderà il controllo per eseguire la registrazione del tuo dispositivo.
+            Dovrai ora effettuare il normale accesso al registro elettronico:
+            subito dopo, l'applicazione prenderà il controllo per eseguire
+            la registrazione del tuo dispositivo.
           </Text>
-          <Pressable style={{ marginBottom: 20 }} onPress={() => setStage(1)}>
-            <Text style={styles.buttonSecondary}>Associa il dispositivo</Text>
+          <Pressable
+            style={styles.buttonContainer}
+            onPress={() => setStage(1)}>
+            <Text style={styles.buttonPrimary}>Associa il dispositivo</Text>
           </Pressable>
         </View>
       )}
-
-
-
-
-      {stage === 1 && (
-        // <View>
+      {stage == 1 && (
         <WebView
-          source={{ uri: web+'login/form/' }}
-
-          onError={(syntheticEvent) => {
-            const { nativeEvent } = syntheticEvent;
-            console.warn('WebView error: ', nativeEvent);
+          source={{ uri: web + 'login/form/' }}
+          onError={(event) => {
+            setError('Errore di connessione\n' + event.nativeEvent.description);
+            setStage(9);
           }}
-          onHttpError={(syntheticEvent) => {
-            const { nativeEvent } = syntheticEvent;
-            console.warn(
-              'HTTP error status code: ',
-              nativeEvent,
-            );
+          onHttpError={(event) => {
+            setError('Errore di connessione\n' + event.nativeEvent.description);
+            setStage(9);
           }}
-
           onNavigationStateChange={navigationChanged}
-          // incognito = {true}
-
-          renderLoading={waitingComponent}
           startInLoadingState={true}
+          domStorageEnabled={true}
           javaScriptEnabled={true}
-          userAgent='Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/42.0.2311.135 Safari/537.36 Edge/12.246 giua@school/app 3.1'
+          UserAgent={'Mozilla/5.0 (Android 10; Mobile; rv:132.0) Gecko/132.0 Firefox/132.0 ' + Constants.expoConfig.extra.version}
+          renderLoading={() => <Waiting />}
           ref={webViewRef}
         />
-        // </View>
       )}
-      {stage === 2 && (
+
+
+
+
+
+      {stage == 2 && (
         <View onLayout={connect}>
           <Text>In corso....</Text>
         </View>
       )}
-      {stage === 3 && (
+      {stage == 3 && (
         <View>
           <Text>OK - Fine</Text>
         </View>
       )}
-      {stage === 4 && (
+      {stage == 9 && (
         <View>
           <Text>ERRORE - Fine</Text>
+          <Text>{error}</Text>
         </View>
       )}
     </View>

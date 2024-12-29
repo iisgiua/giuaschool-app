@@ -35,18 +35,20 @@ export default function SettingsScreen() {
     if (web == '' || web == null) {
       // errore: indirizzo web vuoto
       url = `${url}?type=E&title=ATTENZIONE&msg=${encodeURIComponent('Non hai indicato l\'indirizzo web del registro elettronico.')}`;
-    } else if (!web.startsWith('http://') && !web.startsWith('https://')) {
+    } else if (!web.startsWith('https://')) {
       // errore: indirizzo web non valido
       url = `${url}?type=E&title=ATTENZIONE&msg=${encodeURIComponent('L\'indirizzo web del registro elettronico non è valido.')}`;
     } else {
       // impostazioni corrette
-      if (!web.endsWith('/')) {
+      let webUrl = web;
+      if (!webUrl.endsWith('/')) {
         // l'indirizzo deve terminare con '/'
+        webUrl = webUrl + '/';
         setWeb(web + '/');
       }
       // memorizza dati
       const state = {
-        web: web,
+        web: webUrl,
         authentication: authentication,
       };
       SecureStore.setItem('userData', JSON.stringify(state));
@@ -58,7 +60,7 @@ export default function SettingsScreen() {
 
   // eseguito solo al primo render
   useEffect(() => {
-    // legge dati da memoria
+    // legge dati dalla memoria
     const result = SecureStore.getItem('userData');
     if (result) {
       const state = JSON.parse(result);

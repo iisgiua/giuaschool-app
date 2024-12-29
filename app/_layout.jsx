@@ -44,6 +44,7 @@ export const styles = StyleSheet.create({
     margin: 0,
     padding: 0,
     backgroundColor: '#eeeeee',
+    color: '#000000',
   },
   modalContainer: {
     flex: 1,
@@ -133,6 +134,11 @@ export const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
   },
+  buttonContainer: {
+    marginVertical: 30,
+    marginHorizontal: 15,
+    alignItems: 'center',
+  },
   buttonPrimary: {
     paddingHorizontal: 15,
     paddingVertical: 8,
@@ -155,6 +161,20 @@ export const styles = StyleSheet.create({
     backgroundColor: '#5c6f82',
     color: '#ffffff',
   },
+  text: {
+    paddingHorizontal: 15,
+    paddingVertical: 10,
+    fontSize: 18,
+    fontWeight: 'bold',
+    textAlign: 'left',
+  },
+  activityContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    height: '100%',
+    width: '100%'
+  },
+
 
 //----
 
@@ -163,16 +183,6 @@ export const styles = StyleSheet.create({
     fontSize: 18,
     color: '#007BFF',
     marginVertical: 10,
-  },
-
-  text:{
-    fontSize: 16,
-    color: '#000000',
-    paddingLeft: 15,
-    paddingRight: 15,
-    paddingTop: 5,
-    paddingBottom: 5,
-    backgroundColor: '#dddddd',
   },
 
   logoContainer: {
@@ -194,30 +204,6 @@ export const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#000099',
   },
-  title: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    textAlign: 'center',
-    marginTop: 0,
-    marginBottom: 10,
-  },
-  labelDisabled: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    textAlign: 'left',
-    marginTop: 5,
-    marginBottom: 2,
-    color: '#aaaaaa',
-  },
-
-
-  icon: {
-    backgroundColor: '#ffffff',
-    color: '#000000',
-    paddingHorizontal: 10,
-    paddingVertical: 10,
-    fontSize: 20,
-  },
 
   spacedContainer: {
     flex: 1,
@@ -226,41 +212,4 @@ export const styles = StyleSheet.create({
     alignItems: 'center',
   },
 
-  hidden: {
-    margin: 0,
-    width: 1,
-  },
-  accordRow:{
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    height: 50,
-    paddingLeft: 20,
-    paddingRight: 20,
-    alignItems:'center',
-  },
-  accordTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    textAlign: 'center',
-    color: '#ffffff',
-  },
-  accordIcon: {
-    fontSize: 20,
-    color: '#ffffff',
-  },
-  accordHr:{
-    height: 2,
-    width: '100%'
-  },
-  accordText:{
-    paddingLeft: 15,
-    paddingRight: 15,
-    paddingTop: 5,
-    paddingBottom: 5,
-    backgroundColor: '#dddddd',
-  },
-  accordContent: {
-    fontSize: 16,
-    color: '#000',
-  },
 });
