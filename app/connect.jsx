@@ -1,7 +1,13 @@
+/*
+ * SPDX-FileCopyrightText: 2022 I.I.S. Michele Giua - Cagliari - Assemini
+ *
+ * SPDX-License-Identifier: AGPL-3.0-or-later
+ */
+
 import Constants from 'expo-constants';
-import { Stack } from 'expo-router';
+import { Stack, useRouter } from 'expo-router';
 import * as SecureStore from 'expo-secure-store';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Text, View } from 'react-native';
 import { WebView } from 'react-native-webview';
 import Pressable from '../components/PressableComponent';
@@ -10,7 +16,11 @@ import { createDeviceId } from '../utils/DeviceInfo';
 import { styles } from './_layout';
 
 
-// associa dispositivo al registro
+// **
+// * Pagina per la procedura di associazione del dispositivo all'utente sul registro elettronico
+// *
+// * @author Antonello Dessì
+// *
 export default function ConnectScreen() {
 
   // inizializza
@@ -18,7 +28,8 @@ export default function ConnectScreen() {
   const [device, setDevice] = useState('');
   const [stage, setStage] = useState(0);
   const [error, setError] = useState('');
-  const webViewRef = useRef(null);
+  const userAgent = 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36 ' + Constants.expoConfig.extra.version;
+  const router = useRouter();
 
   // gestione cambio pagina
   const navigationChanged = (event) => {
@@ -31,39 +42,48 @@ export default function ConnectScreen() {
 
   // connessione app
   const connect = async () => {
-
-    setError('Ok, connect');
-    setStage(9);
-
-    console.warn('connect: ' + device);
+    // inizializza dati
     const url = web + 'app/device';
     const urlLogout = web + 'logout/';
+    let errorFlag = false;
+    // associa dispositivo
     const response = await fetch(url, {
       method: 'POST',
       headers: {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/42.0.2311.135 Safari/537.36 Edge/12.246 giua@school/app 3.1',
+        'User-Agent': userAgent,
         'Accept': 'application/json',
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify({ id: device })
+      body: JSON.stringify({ device: device })
     });
+    // controlla risposta
     if (response.ok) {
-      // Get JSON value from the response body
-      const data = await response.json();
-      SecureStore.setItem('token', data['token']);
-      await fetch(urlLogout, {
-        method: 'GET',
-        headers: {
-          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/42.0.2311.135 Safari/537.36 Edge/12.246 giua@school/app 3.1',
-        },
-      });
-      console.warn('risposta: ', data['token']);
-      setStage(3);
+      // associazione eseguita: memorizza token
+      try {
+        const data = await response.json();
+        SecureStore.setItem('token', data['token']);
+      } catch (err) {
+        setError('Errore nella memorizzazione del token.\n' + err);
+        errorFlag = true;
+      }
     } else {
-      setStage(4);
-      console.warn('errore risposta: ', response);
+      setError('Errore nell\'associazione del dispositivo.\n');
+      errorFlag = true;
     }
-
+    // logout dal registro
+    await fetch(urlLogout, {
+      method: 'GET',
+      headers: {
+        'User-Agent': userAgent,
+      },
+    });
+    if (errorFlag) {
+      // mostra l'errore
+      setStage(9);
+    } else {
+      // passo finale
+      setStage(3);
+    }
   }
 
   // eseguito solo al primo render
@@ -83,14 +103,14 @@ export default function ConnectScreen() {
 
   // visualizza pagina
   return (
-    <View style={styles.pageContainer}>
+    <>
       <Stack.Screen
         options={{
           title: 'Associa il dispositivo',
         }}
       />
       {stage == 0 && (
-        <View>
+        <View style={styles.pageContainer}>
           <Text style={styles.text}>
             Questo dispositivo sarà associato al tuo utente sul registro elettronico,
             in modo che non sia più necessario usare le tue credenziali per collegarti.
@@ -109,7 +129,8 @@ export default function ConnectScreen() {
       )}
       {stage == 1 && (
         <WebView
-          source={{ uri: web + 'login/form/' }}
+          source={{ uri: web + 'logout/' }}
+          // source={{ uri: web + 'login/form/' }}
           onError={(event) => {
             setError('Errore di connessione\n' + event.nativeEvent.description);
             setStage(9);
@@ -122,32 +143,39 @@ export default function ConnectScreen() {
           startInLoadingState={true}
           domStorageEnabled={true}
           javaScriptEnabled={true}
-          UserAgent={'Mozilla/5.0 (Android 10; Mobile; rv:132.0) Gecko/132.0 Firefox/132.0 ' + Constants.expoConfig.extra.version}
+          userAgent={userAgent}
           renderLoading={() => <Waiting />}
-          ref={webViewRef}
         />
       )}
-
-
-
-
-
       {stage == 2 && (
-        <View onLayout={connect}>
-          <Text>In corso....</Text>
+        <View
+          style={styles.pageContainer}
+          onLayout={connect}>
+          <Waiting />
         </View>
       )}
       {stage == 3 && (
-        <View>
-          <Text>OK - Fine</Text>
+        <View style={styles.modalContainer}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalTitleSuccess}>DISPOSITIVO ASSOCIATO</Text>
+            <Text style={styles.modalMessage}>La procedura di associazione del dispositivo al tuo utente è stata eseguita correttamente.</Text>
+            <Pressable onPress={() => router.back()}>
+              <Text style={styles.buttonPrimary}>INDIETRO</Text>
+            </Pressable>
+          </View>
         </View>
       )}
       {stage == 9 && (
-        <View>
-          <Text>ERRORE - Fine</Text>
-          <Text>{error}</Text>
+        <View style={styles.modalContainer}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalTitleError}>ERRORE</Text>
+            <Text style={styles.modalMessage}>{error}</Text>
+            <Pressable onPress={() => router.back()}>
+              <Text style={styles.buttonPrimary}>INDIETRO</Text>
+            </Pressable>
+          </View>
         </View>
       )}
-    </View>
+    </>
   );
 };

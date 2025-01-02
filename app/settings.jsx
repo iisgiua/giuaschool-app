@@ -110,7 +110,7 @@ export default function SettingsScreen() {
         <Pressable onPress={submit}>
           <Text style={styles.buttonPrimary}>SALVA</Text>
         </Pressable>
-        <Pressable onPress={() => router.push('/')}>
+        <Pressable onPress={() => router.back()}>
           <Text style={styles.buttonSecondary}>INDIETRO</Text>
         </Pressable>
       </View>
