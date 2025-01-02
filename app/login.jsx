@@ -1,6 +1,12 @@
+/*
+ * SPDX-FileCopyrightText: 2022 I.I.S. Michele Giua - Cagliari - Assemini
+ *
+ * SPDX-License-Identifier: AGPL-3.0-or-later
+ */
+
 import Constants from 'expo-constants';
 import * as LocalAuthentication from 'expo-local-authentication';
-import { Stack, useRouter } from 'expo-router';
+import { Stack, useRouter, Link } from 'expo-router';
 import * as SecureStore from 'expo-secure-store';
 import * as WebBrowser from 'expo-web-browser';
 import { useEffect, useState } from 'react';
@@ -11,7 +17,11 @@ import { createDeviceId } from '../utils/DeviceInfo';
 import { styles } from './_layout';
 
 
-
+// **
+// * Pagina per la procedura di login sul registro elettronico
+// *
+// * @author Antonello Dessì
+// *
 export default function LoginScreen() {
 
   // inizializza
@@ -19,6 +29,7 @@ export default function LoginScreen() {
   const [authentication, setAuthentication] = useState(false);
   const [token, setToken] = useState('');
   const [device, setDevice] = useState('');
+  const [url, setUrl] = useState('');
   const [stage, setStage] = useState(0);
   const [error, setError] = useState('');
   const userAgent = 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36 ' + Constants.expoConfig.extra.version;
@@ -39,7 +50,12 @@ export default function LoginScreen() {
       // dati ok
       if (authentication) {
         // autenticazione biometrica
-        LocalAuthentication.authenticateAsync()
+        const options = {
+          promptMessage: 'Usa l\'autenticazione biometrica del dispositivo',
+          fallbackLabel: 'Inserisci il PIN se necessario',
+          cancelLabel: 'Annulla',
+        };
+        LocalAuthentication.authenticateAsync(options)
           .then((res) => {
             if (res.success) {
               setStage(1);
@@ -73,8 +89,8 @@ export default function LoginScreen() {
       });
       const data = await response.json();
       if (data.success) {
-        const urlConnect = web + 'login/connect/' + data.otp;
-        const result = await WebBrowser.openAuthSessionAsync(urlConnect);
+        const url = web + 'login/connect/' + data.otp;
+        router.push(url);
         setStage(2)
       } else {
         // errore durante il login
@@ -132,10 +148,8 @@ export default function LoginScreen() {
       {stage == 2 && (
         <View style={styles.modalContainer}>
           <View style={styles.modalContent}>
-            <Text style={styles.modalTitleSuccess}>DISCONNESSO</Text>
-            <Text style={styles.modalMessage}>La connessione al registro elettronico è stata chiusa.</Text>
             <Pressable onPress={() => router.back()}>
-              <Text style={styles.buttonPrimary}>INDIETRO</Text>
+              <Text style={styles.buttonSecondary}>INDIETRO</Text>
             </Pressable>
           </View>
         </View>

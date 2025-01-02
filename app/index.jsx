@@ -41,6 +41,10 @@ export default function HomeScreen() {
         Info About
       </Link>
 
+      <Link href="https://registro.giua.edu.it" style={styles.link}>
+        Registro
+      </Link>
+
       <Text>  </Text>
     </View>
   );
