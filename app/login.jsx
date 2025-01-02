@@ -1,14 +1,14 @@
-import { useState, useEffect } from 'react';
-import { Button, Text, View } from 'react-native';
-import * as WebBrowser from 'expo-web-browser';
-import { styles } from './_layout';
-import * as SecureStore from 'expo-secure-store';
-import Waiting from '../components/WaitingComponent';
-import { Stack, useRouter } from 'expo-router';
-import Pressable from '../components/PressableComponent';
-import { createDeviceId } from '../utils/DeviceInfo';
 import Constants from 'expo-constants';
 import * as LocalAuthentication from 'expo-local-authentication';
+import { Stack, useRouter } from 'expo-router';
+import * as SecureStore from 'expo-secure-store';
+import * as WebBrowser from 'expo-web-browser';
+import { useEffect, useState } from 'react';
+import { Text, View } from 'react-native';
+import Pressable from '../components/PressableComponent';
+import Waiting from '../components/WaitingComponent';
+import { createDeviceId } from '../utils/DeviceInfo';
+import { styles } from './_layout';
 
 
 
@@ -18,6 +18,7 @@ export default function LoginScreen() {
   const [web, setWeb] = useState('');
   const [authentication, setAuthentication] = useState(false);
   const [token, setToken] = useState('');
+  const [device, setDevice] = useState('');
   const [stage, setStage] = useState(0);
   const [error, setError] = useState('');
   const userAgent = 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36 ' + Constants.expoConfig.extra.version;
