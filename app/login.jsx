@@ -6,9 +6,8 @@
 
 import Constants from 'expo-constants';
 import * as LocalAuthentication from 'expo-local-authentication';
-import { Stack, useRouter, Link } from 'expo-router';
+import { Stack, useRouter } from 'expo-router';
 import * as SecureStore from 'expo-secure-store';
-import * as WebBrowser from 'expo-web-browser';
 import { useEffect, useState } from 'react';
 import { Text, View } from 'react-native';
 import Pressable from '../components/PressableComponent';
@@ -29,7 +28,6 @@ export default function LoginScreen() {
   const [authentication, setAuthentication] = useState(false);
   const [token, setToken] = useState('');
   const [device, setDevice] = useState('');
-  const [url, setUrl] = useState('');
   const [stage, setStage] = useState(0);
   const [error, setError] = useState('');
   const userAgent = 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36 ' + Constants.expoConfig.extra.version;
@@ -90,8 +88,10 @@ export default function LoginScreen() {
       const data = await response.json();
       if (data.success) {
         const url = web + 'login/connect/' + data.otp;
+        // apre browser predefinito sul registro
         router.push(url);
-        setStage(2)
+        // riporta alla pagina iniziale l'app
+        router.back();
       } else {
         // errore durante il login
         setError('Impossibile eseguire l\'accesso al registro elettronico.\n' + data.error);
@@ -145,15 +145,6 @@ export default function LoginScreen() {
           <Text style={styles.text}>Accesso al registro in corso.</Text>
           <Waiting />
         </View>)}
-      {stage == 2 && (
-        <View style={styles.modalContainer}>
-          <View style={styles.modalContent}>
-            <Pressable onPress={() => router.back()}>
-              <Text style={styles.buttonSecondary}>INDIETRO</Text>
-            </Pressable>
-          </View>
-        </View>
-      )}
       {stage == 9 && (
         <View style={styles.modalContainer}>
           <View style={styles.modalContent}>

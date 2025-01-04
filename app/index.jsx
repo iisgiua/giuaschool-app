@@ -1,51 +1,111 @@
-// import { saveUserData, readUserData } from "../utils/StorageManager";
-// import {useState} from "react";
+/*
+ * SPDX-FileCopyrightText: 2022 I.I.S. Michele Giua - Cagliari - Assemini
+ *
+ * SPDX-License-Identifier: AGPL-3.0-or-later
+ */
 
-import { Link, Stack } from "expo-router";
-import { Text, View } from "react-native";
+import { useFocusEffect } from '@react-navigation/native';
+import Constants from 'expo-constants';
+import { Stack, useRouter } from "expo-router";
+import * as SecureStore from 'expo-secure-store';
+import { useCallback, useState } from "react";
+import { Image, ScrollView, Text, View } from "react-native";
+import logo from '../assets/logo.png';
+import Pressable from '../components/PressableComponent';
 import { styles } from "./_layout";
 
 
+// **
+// * Pagina iniziale dell'app
+// *
+// * @author Antonello Dessì
+// *
 export default function HomeScreen() {
 
-  // const [web, setWeb] = useState("");
-  // const [authentication, setAuthentication] = useState(false);
-  // const [token, setToken] = useState("");
+  // inizializza
+  const [login, setLogin] = useState(false);
+  const router = useRouter();
 
-  // saveUserData("http:/prova", true);
-  // readUserData(setWeb, setAuthentication);
-  // console.warn('web: ', web);
-  // console.warn('authentication: ', authentication);
+  // controlla versione
+  const checkVersion = () => {
+    // controlla aggiornamento
+    const result = SecureStore.getItem('version');
+    if (!result || result !== Constants.expoConfig.extra.version) {
+      // nuova versione
+      SecureStore.setItem('version', Constants.expoConfig.extra.version);
+      router.push('/about');
+    }
+  };
 
+  // controlli eseguiti ad ogni visualizzazione
+  useFocusEffect(
+    useCallback(() => {
+      // inizializza
+      setLogin(false);
+      // controlla impostazioni
+      result = SecureStore.getItem('userData');
+      if (result) {
+        const state = JSON.parse(result);
+        if (state.web != '' && state.web != null) {
+          // controlla associazione dispositivo
+          result = SecureStore.getItem('token');
+          if (result) {
+            // abilita il login
+            setLogin(true);
+          }
+        }
+      }
+    }, [])
+  );
+
+  // visualizza pagina
   return (
-    <View style={styles.container}>
+    <ScrollView
+      onLayout={checkVersion}
+      style={styles.pageContainer}>
       <Stack.Screen
         options={{
-          title: 'My home',
+          title: 'Pagina iniziale',
         }}
       />
-      <Text style={styles.title}>
-        Se non c'è token, vai all'associazione.
-        Altrimenti login
-      </Text>
-      <Link href="/connect" style={styles.link}>
-        Associa il tuo dispositivo al registro
-      </Link>
-      <Link href="/login" style={styles.link}>
-        Login
-      </Link>
-      <Link href="/settings" style={styles.link}>
-        Impostazioni
-      </Link>
-      <Link href="/about" style={styles.link}>
-        Info About
-      </Link>
-
-      <Link href="https://registro.giua.edu.it" style={styles.link}>
-        Registro
-      </Link>
-
-      <Text>  </Text>
-    </View>
+      <View style={styles.logoContainer}>
+        <Image
+          style={styles.logo}
+          source={logo}
+        />
+        <Text style={styles.logoLabel}>{Constants.expoConfig.extra.version}</Text>
+        {Constants.expoConfig.extra.school != '' &&
+          <Text style={styles.schoolLabel}>{Constants.expoConfig.extra.school}</Text>
+        }
+      </View>
+      <View style={styles.spacedContainer}>
+        {login ?
+          <Pressable
+            style={styles.spaced}
+            onPress={() => router.push('/login')}>
+            <Text style={styles.buttonPrimary}>Accedi al registro</Text>
+          </Pressable>
+          :
+          <View style={styles.spaced}>
+            <Text style={styles.buttonDisabled}>Accedi al registro</Text>
+          </View>
+        }
+        <Pressable
+          style={styles.spaced}
+          onPress={() => router.push('/settings')}>
+          <Text style={styles.buttonSecondary}>Impostazioni</Text>
+        </Pressable>
+        <Pressable
+          style={styles.spaced}
+          onPress={() => router.push('/connect')}>
+          <Text style={styles.buttonSecondary}>Associa il dispositivo</Text>
+        </Pressable>
+        <Pressable
+          style={styles.spaced}
+          onPress={() => router.push('/about')}>
+          <Text style={styles.buttonSecondary}>Informazioni</Text>
+        </Pressable>
+      </View>
+    </ScrollView>
   );
 }

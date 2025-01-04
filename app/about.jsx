@@ -1,57 +1,58 @@
-import { Stack } from 'expo-router';
-import { Link } from "expo-router";
-import { View, Text } from "react-native";
-import { styles } from "./_layout"; // Import degli stili condivisi
-import Constants from 'expo-constants';
-import * as SecureStore from 'expo-secure-store';
-import { useState, useEffect } from 'react';
+/*
+ * SPDX-FileCopyrightText: 2022 I.I.S. Michele Giua - Cagliari - Assemini
+ *
+ * SPDX-License-Identifier: AGPL-3.0-or-later
+ */
+
+import { Stack, useRouter } from 'expo-router';
+import { ScrollView, Text, View } from "react-native";
+import Pressable from '../components/PressableComponent';
+import { styles } from "./_layout";
 
 
+// **
+// * Pagina con le informazioni sull'uso dell'app
+// *
+// * @author Antonello Dessì
+// *
+export default function AboutScreen() {
 
-export default function DetailsScreen() {
+  // inizializza
+  const router = useRouter();
 
-    const [web, setWeb] = useState('');
-    const [authentication, setAuthentication] = useState(false);
-    const [token, setToken] = useState('');
-
-  // legge dati dalla memoria permanente (eseguito solo al primo render)
-  useEffect(() => {
-    let result = SecureStore.getItem("userData");
-    if (result) {
-      let state = JSON.parse(result);
-      setWeb(state.web);
-      setAuthentication(state.authentication);
-    }
-    result = SecureStore.getItem("token");
-    if (result) {
-      setToken(result);
-    }
-  }, []);
-
-
+  // visualizza pagina
   return (
-    <View style={styles.container}>
+    <ScrollView>
       <Stack.Screen
         options={{
-          title: 'Questo è altro',
+          title: 'Informazioni',
         }}
       />
-      <Text style={styles.title}>Questa è la schermata dei Dettagli!</Text>
-      <Link href="/" style={styles.link}>
-        Torna alla Home
-      </Link>
-      <Text>url: {Constants.expoConfig.extra.url}</Text>
-      <Text>scuola: {Constants.expoConfig.extra.school}</Text>
-      <Text>version: {Constants.expoConfig.extra.version}</Text>
-
-      <Text>web: {web}</Text>
-      <Text>authentication: {authentication}</Text>
-      <Text>token: {token}</Text>
-
-    </View>
+      <View style={styles.modalContainer}>
+        <View style={styles.modalContent}>
+          <Text style={styles.textSmall}>
+            Questa applicazione ti permette di accedere al registro elettronico senza preoccuparti più
+            delle credenziali di accesso.
+            Devi però configurarla nel modo seguente:
+          </Text>
+          <Text style={styles.textSmall}>
+            1 - Vai alla pagina delle impostazioni ed inserisci i dati richiesti.
+            Se vuoi, puoi decidere che prima di ogni accesso al registro elettronico ti venga richiesta
+            un'autenticazione biometrica sul tuo dispositivo (impronta digitale o altro).
+          </Text>
+          <Text style={styles.textSmall}>
+            2 - Vai alla pagina per associare il dispositivo e segui le indicazioni.
+            Dovrai effettuare il normale accesso al registro elettronico, in modo che il tuo dispositivo venga
+            registrato.
+          </Text>
+          <Text style={styles.textSmall}>
+            3 - Se hai effettuato i passi precedenti, ora potrai accedere al registro senza credenziali.
+          </Text>
+          <Pressable onPress={() => router.back()}>
+            <Text style={styles.buttonPrimary}>INDIETRO</Text>
+          </Pressable>
+        </View>
+      </View>
+    </ScrollView>
   );
 }
-
-// export const config = {
-//   headerTitle: "Dettagli", // Titolo per questa schermata
-// };

@@ -1,9 +1,15 @@
+/*
+ * SPDX-FileCopyrightText: 2022 I.I.S. Michele Giua - Cagliari - Assemini
+ *
+ * SPDX-License-Identifier: AGPL-3.0-or-later
+ */
+
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { SafeAreaView, StyleSheet } from 'react-native';
 
 
-// imposta pagina iniziale
+// imposta la pagina iniziale
 export const unstable_settings = {
   initialRouteName: 'index',
 };
@@ -161,10 +167,27 @@ export const styles = StyleSheet.create({
     backgroundColor: '#5c6f82',
     color: '#ffffff',
   },
+  buttonDisabled: {
+    paddingHorizontal: 15,
+    paddingVertical: 8,
+    borderWidth: 0.5,
+    borderRadius: 8,
+    borderColor: '#000000',
+    fontSize: 18,
+    fontStyle: 'italic',
+    backgroundColor: '#cccccc',
+    color: '#000000',
+  },
   text: {
     paddingHorizontal: 15,
     paddingVertical: 10,
     fontSize: 18,
+    fontWeight: 'bold',
+    textAlign: 'left',
+  },
+  textSmall: {
+    marginBottom: 30,
+    fontSize: 16,
     fontWeight: 'bold',
     textAlign: 'left',
   },
@@ -174,20 +197,10 @@ export const styles = StyleSheet.create({
     height: '100%',
     width: '100%'
   },
-
-
-//----
-
-
-  link: {
-    fontSize: 18,
-    color: '#007BFF',
-    marginVertical: 10,
-  },
-
   logoContainer: {
-    alignItems: 'center',
+    marginBottom: 30,
     padding: 10,
+    alignItems: 'center',
   },
   logo: {
     width: 100,
@@ -204,12 +217,12 @@ export const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#000099',
   },
-
   spacedContainer: {
-    flex: 1,
     marginVertical: 30,
     marginHorizontal: 10,
     alignItems: 'center',
   },
-
+  spaced: {
+    marginBottom: 20,
+  },
 });
