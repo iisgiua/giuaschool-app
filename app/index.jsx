@@ -9,8 +9,8 @@ import Constants from 'expo-constants';
 import { Stack, useRouter } from "expo-router";
 // import * as SecureStore from 'expo-secure-store';
 // import { useCallback, useState } from "react";
-import { useState } from "react";
-import { Image, Text, View } from "react-native";
+// import { useState } from "react";
+import { Text, View } from "react-native";
 // import { Image, ScrollView, Text, View } from "react-native";
 // import logo from '../assets/logo.png';
 import Pressable from '../components/PressableComponent';
@@ -25,7 +25,7 @@ import { styles } from "./_layout";
 export default function HomeScreen() {
 
   // inizializza
-  const [login, setLogin] = useState(false);
+  // const [login, setLogin] = useState(true);
   const router = useRouter();
 
   // // controlla versione
@@ -72,28 +72,28 @@ export default function HomeScreen() {
           title: 'Pagina iniziale',
         }}
       />
-      <View style={styles.logoContainer}>
+      <View style={styles.logo_Container}>
         {/* <Image
           // style={styles.logo}
           // source={logo}
          />*/}
-        <Text style={styles.logoLabel}>{Constants.expoConfig.extra.version}</Text>
+        <Text style={styles.logo_Label}>{Constants.expoConfig.extra.version}</Text>
         {Constants.expoConfig.extra.school != '' &&
-          <Text style={styles.schoolLabel}>{Constants.expoConfig.extra.school}</Text>
+          <Text style={styles.school_Label}>{Constants.expoConfig.extra.school}</Text>
         }
       </View>
       <View style={styles.spacedContainer}>
-        {login ?
+        {/* {login ? */}
           <Pressable
             style={styles.spaced}
             onPress={() => router.push('/login')}>
             <Text style={styles.buttonPrimary}>Accedi al registro</Text>
           </Pressable>
-          :
-          <View style={styles.spaced}>
-            <Text style={styles.buttonDisabled}>Accedi al registro</Text>
-          </View>
-        }
+          {/* : */}
+          {/* <View style={styles.spaced}> */}
+            {/* <Text style={styles.buttonDisabled}>Accedi al registro</Text> */}
+          {/* </View> */}
+        {/* } */}
         <Pressable
           style={styles.spaced}
           onPress={() => router.push('/settings')}>
