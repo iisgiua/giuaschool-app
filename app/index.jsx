@@ -63,9 +63,7 @@ export default function HomeScreen() {
 
   // visualizza pagina
   return (
-    <ScrollView
-      onLayout={checkVersion}
-      style={styles.pageContainer}>
+    <ScrollView style={styles.pageContainer}>
       <Stack.Screen
         options={{
           title: 'Pagina iniziale',
