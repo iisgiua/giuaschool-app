@@ -10,7 +10,8 @@ import { Stack, useRouter } from "expo-router";
 // import * as SecureStore from 'expo-secure-store';
 // import { useCallback, useState } from "react";
 import { useState } from "react";
-import { Image, ScrollView, Text, View } from "react-native";
+import { Image, Text, View } from "react-native";
+// import { Image, ScrollView, Text, View } from "react-native";
 import logo from '../assets/logo.png';
 import Pressable from '../components/PressableComponent';
 import { styles } from "./_layout";
@@ -64,7 +65,8 @@ export default function HomeScreen() {
 
   // visualizza pagina
   return (
-    <ScrollView style={styles.pageContainer}>
+    // <ScrollView style={styles.pageContainer}>
+    <View style={styles.pageContainer}>
       <Stack.Screen
         options={{
           title: 'Pagina iniziale',
@@ -108,6 +110,7 @@ export default function HomeScreen() {
           <Text style={styles.buttonSecondary}>Informazioni</Text>
         </Pressable>
       </View>
-    </ScrollView>
+    {/* </ScrollView> */}
+    </View>
   );
 }
