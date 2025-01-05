@@ -4,11 +4,12 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-import { useFocusEffect } from '@react-navigation/native';
+// import { useFocusEffect } from '@react-navigation/native';
 import Constants from 'expo-constants';
 import { Stack, useRouter } from "expo-router";
-import * as SecureStore from 'expo-secure-store';
-import { useCallback, useState } from "react";
+// import * as SecureStore from 'expo-secure-store';
+// import { useCallback, useState } from "react";
+import { useState } from "react";
 import { Image, ScrollView, Text, View } from "react-native";
 import logo from '../assets/logo.png';
 import Pressable from '../components/PressableComponent';
@@ -26,40 +27,40 @@ export default function HomeScreen() {
   const [login, setLogin] = useState(false);
   const router = useRouter();
 
-  // controlla versione
-  const checkVersion = () => {
-    // controlla aggiornamento
-    const result = SecureStore.getItem('version');
-    if (!result || result !== Constants.expoConfig.extra.version) {
-      // nuova versione
-      SecureStore.setItem('version', Constants.expoConfig.extra.version);
-      router.push('/about');
-    } else if (login) {
-      // esegue login automatico
-      router.push('/login');
-    }
-  };
+  // // controlla versione
+  // const checkVersion = () => {
+  //   // controlla aggiornamento
+  //   const result = SecureStore.getItem('version');
+  //   if (!result || result !== Constants.expoConfig.extra.version) {
+  //     // nuova versione
+  //     SecureStore.setItem('version', Constants.expoConfig.extra.version);
+  //     router.push('/about');
+  //   } else if (login) {
+  //     // esegue login automatico
+  //     router.push('/login');
+  //   }
+  // };
 
   // controlli eseguiti ad ogni visualizzazione
-  useFocusEffect(
-    useCallback(() => {
-      if (!login) {
-        // controlla impostazioni
-        result = SecureStore.getItem('userData');
-        if (result) {
-          const state = JSON.parse(result);
-          if (state.web != '' && state.web != null) {
-            // controlla associazione dispositivo
-            result = SecureStore.getItem('token');
-            if (result) {
-              // abilita il login
-              setLogin(true);
-            }
-          }
-        }
-      }
-    }, [])
-  );
+  // useFocusEffect(
+  //   useCallback(() => {
+  //     if (!login) {
+  //       // controlla impostazioni
+  //       result = SecureStore.getItem('userData');
+  //       if (result) {
+  //         const state = JSON.parse(result);
+  //         if (state.web != '' && state.web != null) {
+  //           // controlla associazione dispositivo
+  //           result = SecureStore.getItem('token');
+  //           if (result) {
+  //             // abilita il login
+  //             setLogin(true);
+  //           }
+  //         }
+  //       }
+  //     }
+  //   }, [])
+  // );
 
   // visualizza pagina
   return (
