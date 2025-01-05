@@ -12,7 +12,7 @@ import { Stack, useRouter } from "expo-router";
 import { useState } from "react";
 import { Image, Text, View } from "react-native";
 // import { Image, ScrollView, Text, View } from "react-native";
-import logo from '../assets/logo.png';
+// import logo from '../assets/logo.png';
 import Pressable from '../components/PressableComponent';
 import { styles } from "./_layout";
 
@@ -73,10 +73,10 @@ export default function HomeScreen() {
         }}
       />
       <View style={styles.logoContainer}>
-        <Image
-          style={styles.logo}
-          source={logo}
-        />
+        {/* <Image
+          // style={styles.logo}
+          // source={logo}
+         />*/}
         <Text style={styles.logoLabel}>{Constants.expoConfig.extra.version}</Text>
         {Constants.expoConfig.extra.school != '' &&
           <Text style={styles.schoolLabel}>{Constants.expoConfig.extra.school}</Text>
