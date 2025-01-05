@@ -34,24 +34,27 @@ export default function HomeScreen() {
       // nuova versione
       SecureStore.setItem('version', Constants.expoConfig.extra.version);
       router.push('/about');
+    } else if (login) {
+      // esegue login automatico
+      router.push('/login');
     }
   };
 
   // controlli eseguiti ad ogni visualizzazione
   useFocusEffect(
     useCallback(() => {
-      // inizializza
-      setLogin(false);
-      // controlla impostazioni
-      result = SecureStore.getItem('userData');
-      if (result) {
-        const state = JSON.parse(result);
-        if (state.web != '' && state.web != null) {
-          // controlla associazione dispositivo
-          result = SecureStore.getItem('token');
-          if (result) {
-            // abilita il login
-            setLogin(true);
+      if (!login) {
+        // controlla impostazioni
+        result = SecureStore.getItem('userData');
+        if (result) {
+          const state = JSON.parse(result);
+          if (state.web != '' && state.web != null) {
+            // controlla associazione dispositivo
+            result = SecureStore.getItem('token');
+            if (result) {
+              // abilita il login
+              setLogin(true);
+            }
           }
         }
       }
