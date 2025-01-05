@@ -10,13 +10,14 @@
       "distribution": "internal",
       "android": {
         "withoutCredentials": true,
-        "buildType": "apk",
+        "buildType": "apk"
       }
     },
     "custom": {
       "environment": "production",
       "distribution": "internal",
       "android": {
+        "withoutCredentials": true,
         "buildType": "apk"
       },
       "env": {
@@ -28,6 +29,7 @@
       "environment": "production",
       "distribution": "internal",
       "android": {
+        "withoutCredentials": true,
         "buildType": "apk"
       }
     }
