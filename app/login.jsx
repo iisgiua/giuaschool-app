@@ -27,7 +27,6 @@ export default function LoginScreen() {
   const [web, setWeb] = useState('');
   const [authentication, setAuthentication] = useState(false);
   const [token, setToken] = useState('');
-  const [device, setDevice] = useState('');
   const [stage, setStage] = useState(0);
   const [error, setError] = useState('');
   const userAgent = 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36 ' + Constants.expoConfig.extra.version;
@@ -76,6 +75,12 @@ export default function LoginScreen() {
     const urlLogin = web + 'login/token/';
     // login app
     try {
+      // crea codice univoco per il dispositivo
+      const device = await createDeviceId();
+      if (!device) {
+        // errore
+        throw new Error('Errore nella generazione dell\'ID del dispositivo');
+      }
       const response = await fetch(urlLogin, {
         method: 'POST',
         headers: {
@@ -112,16 +117,19 @@ export default function LoginScreen() {
       const state = JSON.parse(result);
       setWeb(state.web);
       setAuthentication(state.authentication);
+      result = SecureStore.getItem('token');
+      if (result) {
+        setToken(result);
+      } else {
+        // errore
+        setError('Errore nel recupero dei dati memorizzati nel dispositivo.\n');
+        setStage(9);
+      }
+    } else {
+      // errore
+      setError('Errore nel recupero dei dati memorizzati nel dispositivo.\n');
+      setStage(9);
     }
-    result = SecureStore.getItem('token');
-    if (result) {
-      setToken(result);
-    }
-    // crea codice univoco per il dispositivo
-    createDeviceId()
-      .then((id) => {
-        setDevice(id);
-      });
   }, []);
 
   // visualizza pagina

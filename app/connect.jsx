@@ -25,7 +25,6 @@ export default function ConnectScreen() {
 
   // inizializza
   const [web, setWeb] = useState('');
-  const [device, setDevice] = useState('');
   const [stage, setStage] = useState(0);
   const [error, setError] = useState('');
   const userAgent = 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36 ' + Constants.expoConfig.extra.version;
@@ -46,29 +45,37 @@ export default function ConnectScreen() {
     const url = web + 'app/device';
     const urlLogout = web + 'logout/';
     let errorFlag = false;
-    // associa dispositivo
-    const response = await fetch(url, {
-      method: 'POST',
-      headers: {
-        'User-Agent': userAgent,
-        'Accept': 'application/json',
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({ device: device })
-    });
-    // controlla risposta
-    if (response.ok) {
-      // associazione eseguita: memorizza token
-      try {
-        const data = await response.json();
-        SecureStore.setItem('token', data['token']);
-      } catch (err) {
-        setError('Errore nella memorizzazione del token.\n' + err);
+    // crea codice univoco per il dispositivo
+    const device = await createDeviceId();
+    if (!device) {
+      // errore
+      setError('Errore nella generazione dell\'ID del dispositivo.\n');
+      errorFlag = true;
+    } else {
+      // associa dispositivo
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'User-Agent': userAgent,
+          'Accept': 'application/json',
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ device: device })
+      });
+      // controlla risposta
+      if (response.ok) {
+        // associazione eseguita: memorizza token
+        try {
+          const data = await response.json();
+          SecureStore.setItem('token', data['token']);
+        } catch (err) {
+          setError('Errore nella memorizzazione del token.\n' + err);
+          errorFlag = true;
+        }
+      } else {
+        setError('Errore nell\'associazione del dispositivo.\n');
         errorFlag = true;
       }
-    } else {
-      setError('Errore nell\'associazione del dispositivo.\n');
-      errorFlag = true;
     }
     // logout dal registro
     await fetch(urlLogout, {
@@ -93,12 +100,11 @@ export default function ConnectScreen() {
     if (result) {
       const state = JSON.parse(result);
       setWeb(state.web);
+    } else {
+      // errore
+      setError('Errore nel recupero dei dati memorizzati nel dispositivo.\n');
+      setStage(9);
     }
-    // crea codice univoco per il dispositivo
-    createDeviceId()
-      .then((id) => {
-        setDevice(id);
-      });
   }, []);
 
   // visualizza pagina
@@ -130,7 +136,6 @@ export default function ConnectScreen() {
       {stage == 1 && (
         <WebView
           source={{ uri: web + 'logout/' }}
-          // source={{ uri: web + 'login/form/' }}
           onError={(event) => {
             setError('Errore di connessione\n' + event.nativeEvent.description);
             setStage(9);

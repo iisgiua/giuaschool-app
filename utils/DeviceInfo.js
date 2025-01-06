@@ -25,7 +25,7 @@ export async function createDeviceId() {
     Device.osBuildId + '/' +
     Device.osInternalBuildId;
   // crea impronta
-  const token = await Crypto.digestStringAsync(Crypto.CryptoDigestAlgorithm.SHA256, info);
+  const id = await Crypto.digestStringAsync(Crypto.CryptoDigestAlgorithm.SHA256, info);
   // restituisce impronta
-  return token;
+  return id;
 }
