@@ -17,4 +17,4 @@ Per utilizzare l'app sul proprio dispositivo, sarà necessario attivare l'opzion
 
 ## Scarica l'app giua@school-app
 
-[giua@school-app v3.1.1](dist/giuaschool-app-v3.1.1.apk)
+[giua@school-app v3.1.1](https://github.com/iisgiua/giuaschool-app/raw/refs/heads/master/dist/giuaschool-app-v3.1.1.apk)
