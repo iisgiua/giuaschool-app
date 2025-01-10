@@ -1,5 +1,5 @@
 const appName = "giua@school/app";
-const appVersion = "3.1";
+const appVersion = "3.1.0";
 
 export default {
   "expo": {
@@ -11,29 +11,14 @@ export default {
     "owner": "iisgiua",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
-    "splash": {
-      "image": "./assets/splash.png",
-      "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
-    },
-    "updates": {
-      "enabled": false
-    },
-    "assetBundlePatterns": [
-      "**/*"
-    ],
     "newArchEnabled": true,
     "scheme": "giuaschool",
     "ios": {
-      "bundleIdentifier": "it.iisgiua.giuaschool-app",
+      "bundleIdentifier": "it.iisgiua.giuaschoolapp",
       "supportsTablet": true,
-      "infoPlist": {
-        "NSPhotoLibraryUsageDescription": "Allow $(PRODUCT_NAME) to access your photos",
-        "NSPhotoLibraryAddUsageDescription": "Allow $(PRODUCT_NAME) to save photos"
-      }
     },
     "android": {
-      "package": "it.iisgiua.giuaschool_app",
+      "package": "it.iisgiua.giuaschoolapp",
       "adaptiveIcon": {
       },
       "permissions": [
@@ -46,10 +31,19 @@ export default {
       "favicon": "./assets/favicon.png"
     },
     "plugins": [
+      "expo-router",
       [
         "expo-screen-orientation",
         {
           "initialOrientation": "DEFAULT"
+        }
+      ],
+      [
+        "expo-splash-screen",
+        {
+          "image": "./assets/splash.png",
+          "resizeMode": "contain",
+          "backgroundColor": "#ffffff"
         }
       ]
     ],
