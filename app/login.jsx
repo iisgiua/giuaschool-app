@@ -25,7 +25,6 @@ export default function LoginScreen() {
 
   // inizializza
   const [web, setWeb] = useState('');
-  const [authentication, setAuthentication] = useState(false);
   const [token, setToken] = useState('');
   const [stage, setStage] = useState(0);
   const [loginExecuted, setLoginExecuted] = useState(false);
@@ -100,7 +99,6 @@ export default function LoginScreen() {
         throw new Error('Non hai impostato l\'indirizzo web del registro elettronico.');
       }
       setWeb(state.web);
-      setAuthentication(state.authentication);
       result = SecureStore.getItem('token');
       if (!result) {
         // errore sui dati
@@ -108,7 +106,7 @@ export default function LoginScreen() {
       }
       setToken(result);
       // dati ok
-      if (authentication) {
+      if (state.authentication) {
         // autenticazione biometrica
         const options = {
           promptMessage: 'Usa l\'autenticazione biometrica del dispositivo',

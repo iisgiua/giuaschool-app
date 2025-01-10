@@ -2,7 +2,7 @@
 FROM saschpe/android-ndk:35-jdk22.0.2_9-ndk27.0.12077973-cmake3.22.1
 
 ### installa node 22 (LTS)
-RUN curl -fsSL https://deb.nodesource.com/setup_22.x | bash -
+RUN curl -fsSL https://deb.nodesource.com/setup_22.x | bash - && \
   apt install nodejs -y && \
   apt autoremove -y && \
   apt clean && \
