@@ -1,5 +1,5 @@
 const appName = "giua@school/app";
-const appVersion = "3.1.1";
+const appVersion = "3.1.2";
 
 export default {
   "expo": {

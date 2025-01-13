@@ -7,7 +7,7 @@
 import Constants from 'expo-constants';
 import { Stack, useRouter } from 'expo-router';
 import * as SecureStore from 'expo-secure-store';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Text, View } from 'react-native';
 import { WebView } from 'react-native-webview';
 import Pressable from '../components/PressableComponent';
@@ -27,15 +27,22 @@ export default function ConnectScreen() {
   const [web, setWeb] = useState('');
   const [stage, setStage] = useState(0);
   const [error, setError] = useState('');
+  const [currentUrl, setCurrentUrl] = useState('');
   const userAgent = 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36 ' + Constants.expoConfig.extra.version;
   const router = useRouter();
+  const webViewRef = useRef(null);
+  const timerRef = useRef(null);
 
   // gestione cambio pagina
   const navigationChanged = (event) => {
-    const url = event.url + (event.url.endsWith('/') ? '' : '/');
-    if (url == web) {
-      // login effettuato con successo
-      setStage(2);
+    const url = event.nativeEvent.url + (event.nativeEvent.url.endsWith('/') ? '' : '/');
+    if (event.nativeEvent.data == 'CLOCK' && !event.nativeEvent.loading && url != currentUrl) {
+      setCurrentUrl(url);
+      if (url == web) {
+        // login effettuato con successo
+        clearInterval(timerRef.current);
+        setStage(2);
+      }
     }
   };
 
@@ -93,6 +100,16 @@ export default function ConnectScreen() {
     }
   }
 
+  // inizia la procedura di registrazione
+  const start = () => {
+    setStage(1);
+    // imposta il timer per inviare un segnale dalla WebView all'app
+    timerRef.current = setInterval(() => {
+      webViewRef.current.injectJavaScript(`window.ReactNativeWebView.postMessage('CLOCK'); true;`);
+    }, 100);
+    return () => clearInterval(timerRef.current);
+  };
+
   // eseguito solo al primo render
   useEffect(() => {
     // legge dati dalla memoria
@@ -123,12 +140,12 @@ export default function ConnectScreen() {
           </Text>
           <Text style={styles.text}>
             Dovrai ora effettuare il normale accesso al registro elettronico:
-            subito dopo, l'applicazione prenderà il controllo per eseguire
-            la registrazione del tuo dispositivo.
+            successivamente non fare niente, ma rimani in attesa che l'applicazione prenda il controllo
+            per eseguire la registrazione del tuo dispositivo.
           </Text>
           <Pressable
             style={styles.buttonContainer}
-            onPress={() => setStage(1)}>
+            onPress={start}>
             <Text style={styles.buttonPrimary}>Associa il dispositivo</Text>
           </Pressable>
         </View>
@@ -144,12 +161,13 @@ export default function ConnectScreen() {
             setError('Errore di connessione\n' + event.nativeEvent.description);
             setStage(9);
           }}
-          onNavigationStateChange={navigationChanged}
+          onMessage={navigationChanged}
           startInLoadingState={true}
           domStorageEnabled={true}
           javaScriptEnabled={true}
           userAgent={userAgent}
           renderLoading={() => <Waiting />}
+          ref={webViewRef}
         />
       )}
       {stage == 2 && (
