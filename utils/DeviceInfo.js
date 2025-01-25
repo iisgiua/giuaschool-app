@@ -13,7 +13,7 @@ import * as Device from 'expo-device';
 // *
 // * @author Antonello Dessì
 // *
-export async function createDeviceId() {
+export const createDeviceId = async () => {
   // info sul dispositivo
   const info =
     Device.brand + '/' +

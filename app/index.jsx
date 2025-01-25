@@ -8,10 +8,11 @@ import { useFocusEffect } from '@react-navigation/native';
 import Constants from 'expo-constants';
 import { Stack, useRouter } from "expo-router";
 import * as SecureStore from 'expo-secure-store';
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Image, ScrollView, Text, View } from "react-native";
 import logo from '../assets/logo.png';
 import Pressable from '../components/PressableComponent';
+import { checkUpdates } from '../utils/CheckUpdates';
 import { styles } from "./_layout";
 
 
@@ -27,9 +28,9 @@ export default function HomeScreen() {
   const [executed, setExecuted] = useState(false);
   const router = useRouter();
 
-  // controlla versione
+  // controlla se prima esecuzione
   const checkVersion = () => {
-    // controlla aggiornamento
+    // controlla se installata nuova versione
     const result = SecureStore.getItem('version');
     if (!result || result !== Constants.expoConfig.extra.version) {
       // nuova versione
@@ -47,7 +48,7 @@ export default function HomeScreen() {
     useCallback(() => {
       if (!login) {
         // controlla impostazioni
-        result = SecureStore.getItem('userData');
+        let result = SecureStore.getItem('userData');
         if (result) {
           const state = JSON.parse(result);
           if (state.web != '' && state.web != null) {
@@ -62,6 +63,17 @@ export default function HomeScreen() {
       }
     }, [])
   );
+
+  // eseguito solo al primo render
+  useEffect(() => {
+    // controlla aggiornamenti
+    checkUpdates().then((res) => {
+      if (res) {
+        // aaggiornamenti presenti
+        router.push('/updates');
+      }
+    });
+  });
 
   // visualizza pagina
   return (

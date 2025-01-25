@@ -8,8 +8,8 @@ import Constants from 'expo-constants';
 import * as LocalAuthentication from 'expo-local-authentication';
 import { Stack, useRouter } from 'expo-router';
 import * as SecureStore from 'expo-secure-store';
-import { useEffect, useState } from 'react';
-import { Text, View } from 'react-native';
+import { useEffect, useRef, useState } from 'react';
+import { AppState, Text, View } from 'react-native';
 import Pressable from '../components/PressableComponent';
 import Waiting from '../components/WaitingComponent';
 import { createDeviceId } from '../utils/DeviceInfo';
@@ -31,6 +31,7 @@ export default function LoginScreen() {
   const [error, setError] = useState('');
   const userAgent = 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36 ' + Constants.expoConfig.extra.version;
   const router = useRouter();
+  const appState = useRef(AppState.currentState);
 
   // login e apertura registro
   const login = () => {
@@ -57,8 +58,6 @@ export default function LoginScreen() {
                   const url = web + 'login/connect/' + data.otp;
                   // apre browser predefinito sul registro
                   router.push(url);
-                  // riporta alla pagina iniziale l'app
-                  router.back();
                 } else {
                   // errore durante il login
                   setError('Impossibile eseguire l\'accesso al registro elettronico.\n' + data.error);
@@ -133,6 +132,21 @@ export default function LoginScreen() {
       setStage(9);
     }
   }, []);
+
+  // eseguito al cambio di stato dell'app
+  useEffect(() => {
+    const stateListener = AppState.addEventListener('change', (next) => {
+      if (next === 'active' && appState.current.match(/inactive|background/)) {
+        // se l'app ritorna in primo piano, va alla home
+        router.back();
+      }
+      appState.current = next;
+    });
+    return () => {
+      // pulisce il listener
+      stateListener.remove();
+    };
+  }, [])
 
   // visualizza pagina
   return (

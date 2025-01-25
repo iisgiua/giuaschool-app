@@ -39,6 +39,7 @@ export default function AboutScreen() {
             1 - Vai alla pagina delle impostazioni ed inserisci i dati richiesti.
             Se vuoi, puoi decidere che prima di ogni accesso al registro elettronico ti venga richiesta
             un'autenticazione biometrica sul tuo dispositivo (impronta digitale o altro).
+            Ricorda di salvare le impostazioni prima di tornare alla pagina iniziale.
           </Text>
           <Text style={styles.textSmall}>
             2 - Vai alla pagina per associare il dispositivo e segui le indicazioni.

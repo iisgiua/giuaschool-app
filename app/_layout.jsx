@@ -225,4 +225,13 @@ export const styles = StyleSheet.create({
   spaced: {
     marginBottom: 20,
   },
+  url: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#000099',
+  },
+  center: {
+    alignItems: 'center',
+    justifyContent: 'center',
+  }
 });

@@ -1,5 +1,5 @@
 const appName = "giua@school/app";
-const appVersion = "3.1.2";
+const appVersion = "3.1.3";
 
 export default {
   "expo": {
@@ -22,9 +22,7 @@ export default {
       "adaptiveIcon": {
       },
       "permissions": [
-        "android.permission.READ_EXTERNAL_STORAGE",
-        "android.permission.WRITE_EXTERNAL_STORAGE",
-        "android.permission.ACCESS_MEDIA_LOCATION"
+        "android.permission.INTERNET"
       ],
     },
     "web": {

@@ -35,14 +35,24 @@ export default function ConnectScreen() {
 
   // gestione cambio pagina
   const navigationChanged = (event) => {
-    const url = event.nativeEvent.url + (event.nativeEvent.url.endsWith('/') ? '' : '/');
-    if (event.nativeEvent.data == 'CLOCK' && !event.nativeEvent.loading && url != currentUrl) {
-      setCurrentUrl(url);
-      if (url == web) {
-        // login effettuato con successo
-        clearInterval(timerRef.current);
-        setStage(2);
+    try {
+      const message = JSON.parse(event.nativeEvent.data);
+      if (message.type === 'CLOCK') {
+        const url = event.nativeEvent.url + (event.nativeEvent.url.endsWith('/') ? '' : '/');
+        if (!event.nativeEvent.loading && url !== currentUrl) {
+          setCurrentUrl(url);
+          if (url === web) {
+            // login effettuato con successo
+            clearInterval(timerRef.current);
+            clearTimeout(timerRef.current);
+            setStage(2);
+          }
+        }
       }
+    } catch (err) {
+      // mostra l'errore
+      setError('Errore nella ricezione dei messaggi del dispositivo.\n'.err);
+      setStage(9);
     }
   };
 
@@ -102,11 +112,27 @@ export default function ConnectScreen() {
 
   // inizia la procedura di registrazione
   const start = () => {
+    // stato di attesa
     setStage(1);
-    // imposta il timer per inviare un segnale dalla WebView all'app
+    // imposta il timer per inviare un segnale periodico alla WebView
     timerRef.current = setInterval(() => {
-      webViewRef.current.injectJavaScript(`window.ReactNativeWebView.postMessage('CLOCK'); true;`);
+      if (webViewRef.current) {
+        webViewRef.current.injectJavaScript(`
+          window.ReactNativeWebView.postMessage(JSON.stringify({ type: 'CLOCK' }));
+          true;
+        `);
+      }
     }, 100);
+    // imposta una scadenza per evitare blocchi infiniti
+    setTimeout(() => {
+      if (stage === 1) {
+        // se dopo la scadenza non c'è stato un cambio pagina, termina l'attesa
+        clearInterval(timerRef.current);
+        setError('Errore: il dispositivo non ha ricevuto una risposta.');
+        setStage(9);
+      }
+    }, 30000);
+    // rimozione del timer
     return () => clearInterval(timerRef.current);
   };
 
