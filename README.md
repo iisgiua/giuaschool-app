@@ -1,4 +1,4 @@
-# giua@school-app
+# giua@school/app
 _Web app per il registro scolastico giua@school_
 
 Si tratta di un'app per dispositivi mobili _Android_ progettata per l'utilizzo del
@@ -15,6 +15,6 @@ Per utilizzare l'app sul proprio dispositivo, sarà necessario attivare l'opzion
 **ATTENZIONE: l'app si può utilizzare solo con giua@school versione 1.6.0 o superiore.**
 
 
-## Scarica l'app giua@school-app
+## Scarica l'app giua@school/app
 
-[giua@school-app v3.1.4](https://github.com/iisgiua/giuaschool-app/raw/refs/heads/master/dist/giuaschool-app-1.3.4.apk)
+[giua@school/app v3.1.4](https://github.com/iisgiua/giuaschool-app/raw/refs/heads/master/dist/giuaschool-app-1.3.4.apk)
