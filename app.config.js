@@ -33,6 +33,7 @@ export default {
       "expo-asset",
       "expo-secure-store",
       "expo-font",
+      "expo-status-bar",
       [
         "expo-screen-orientation",
         {
@@ -45,6 +46,14 @@ export default {
           "image": "./assets/splash.png",
           "resizeMode": "contain",
           "backgroundColor": "#ffffff"
+        }
+      ],
+      [
+        "expo-build-properties",
+        {
+          "android": {
+            "minSdkVersion": 24
+          }
         }
       ]
     ],
