@@ -24,7 +24,6 @@ export default {
       "permissions": [
         "android.permission.INTERNET"
       ],
-      "edgeToEdgeEnabled": true,
     },
     "web": {
       "favicon": "./assets/favicon.png"
@@ -33,6 +32,7 @@ export default {
       "expo-router",
       "expo-asset",
       "expo-secure-store",
+      "expo-font",
       [
         "expo-screen-orientation",
         {
