@@ -6,7 +6,7 @@ export default {
     "name": appName,
     "version": appVersion,
     "slug": "giuaschool-app",
-    "descrition": "Web app per il registro scolastico giua@school",
+    "description": "Web app per il registro scolastico giua@school",
     "githubUrl": "https://github.com/iisgiua/giuaschool-app",
     "owner": "iisgiua",
     "icon": "./assets/icon.png",

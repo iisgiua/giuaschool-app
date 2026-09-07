@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-import { useFocusEffect } from '@react-navigation/native';
+import { useFocusEffect } from 'expo-router';
 import Constants from 'expo-constants';
 import { Stack, useRouter } from "expo-router";
 import * as SecureStore from 'expo-secure-store';
