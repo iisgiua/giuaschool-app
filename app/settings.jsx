@@ -35,9 +35,9 @@ export default function SettingsScreen() {
     if (web == '' || web == null) {
       // errore: indirizzo web vuoto
       url = `${url}?type=E&title=ATTENZIONE&msg=${encodeURIComponent('Non hai indicato l\'indirizzo web del registro elettronico.')}`;
-    } else if (!web.startsWith('https://')) {
-      // errore: indirizzo web non valido
-      url = `${url}?type=E&title=ATTENZIONE&msg=${encodeURIComponent('L\'indirizzo web del registro elettronico non è valido.')}`;
+    // } else if (!web.startsWith('https://')) {
+    //   // errore: indirizzo web non valido
+    //   url = `${url}?type=E&title=ATTENZIONE&msg=${encodeURIComponent('L\'indirizzo web del registro elettronico non è valido.')}`;
     } else {
       // impostazioni corrette
       let webUrl = web;

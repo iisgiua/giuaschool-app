@@ -38,8 +38,9 @@ export default function ConnectScreen() {
     try {
       const message = JSON.parse(event.nativeEvent.data);
       if (message.type === 'CLOCK') {
-        const url = event.nativeEvent.url + (event.nativeEvent.url.endsWith('/') ? '' : '/');
-        if (!event.nativeEvent.loading && url !== currentUrl) {
+        const url = message.url + (message.url.endsWith('/') ? '' : '/');
+        if (url !== currentUrl) {
+          // console.warn('DEBUG:  url - web:', url+'  -  '+web);
           setCurrentUrl(url);
           if (url === web) {
             // login effettuato con successo
@@ -118,7 +119,7 @@ export default function ConnectScreen() {
     timerRef.current = setInterval(() => {
       if (webViewRef.current) {
         webViewRef.current.injectJavaScript(`
-          window.ReactNativeWebView.postMessage(JSON.stringify({ type: 'CLOCK' }));
+          window.ReactNativeWebView.postMessage(JSON.stringify({ type: 'CLOCK', url: window.location.href }));
           true;
         `);
       }

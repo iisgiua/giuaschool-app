@@ -1,5 +1,6 @@
 /.expo/
 /.vscode/
-/android/keystores/
+/android/
+/gradle-cache/
 /node_modules/
 /credentials.json

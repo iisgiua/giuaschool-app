@@ -24,12 +24,14 @@ export default {
       "permissions": [
         "android.permission.INTERNET"
       ],
+      "edgeToEdgeEnabled": true,
     },
     "web": {
       "favicon": "./assets/favicon.png"
     },
     "plugins": [
       "expo-router",
+      "expo-asset",
       [
         "expo-screen-orientation",
         {
