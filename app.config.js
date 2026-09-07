@@ -32,6 +32,7 @@ export default {
     "plugins": [
       "expo-router",
       "expo-asset",
+      "expo-secure-store",
       [
         "expo-screen-orientation",
         {
