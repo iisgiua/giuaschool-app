@@ -4,222 +4,183 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
+
 import Constants from 'expo-constants';
 import { Stack, useRouter } from 'expo-router';
 import * as SecureStore from 'expo-secure-store';
 import { useEffect, useRef, useState } from 'react';
-import { Text, View } from 'react-native';
-import { WebView } from 'react-native-webview';
+import { AppState, Linking, Platform, Text, View } from 'react-native';
 import Pressable from '../components/PressableComponent';
 import Waiting from '../components/WaitingComponent';
-import { createDeviceId } from '../utils/DeviceInfo';
 import { styles } from './_layout';
+import RNBiometrics from 'react-native-easy-biometrics';
+
+
+// definizione costanti
+const DEVICE_KEY_ALIAS = 'it.iisgiua.giuaschoolapp.device_identity_key';
 
 
 // **
-// * Pagina per la procedura di associazione del dispositivo all'utente sul registro elettronico
+// * Pagina per la procedura di connessione al registro elettronico.
 // *
 // * @author Antonello Dessì
-// *
 export default function ConnectScreen() {
-
-  // inizializza
+  // variabili
   const [web, setWeb] = useState('');
+  const [deviceId, setDeviceId] = useState('');
   const [stage, setStage] = useState(0);
+  const [loginExecuted, setLoginExecuted] = useState(false);
   const [error, setError] = useState('');
-  const [currentUrl, setCurrentUrl] = useState('');
-  const userAgent = 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36 ' + Constants.expoConfig.extra.version;
+  const userAgent = `GiuaSchoolApp/${Constants.expoConfig.extra.version} (${Platform.OS})`;
   const router = useRouter();
-  const webViewRef = useRef(null);
-  const timerRef = useRef(null);
+  const appState = useRef(AppState.currentState);
+  const browserOpened = useRef(false);
 
-  // gestione cambio pagina
-  const navigationChanged = (event) => {
-    try {
-      const message = JSON.parse(event.nativeEvent.data);
-      if (message.type === 'CLOCK') {
-        const url = message.url + (message.url.endsWith('/') ? '' : '/');
-        if (url !== currentUrl) {
-          // console.warn('DEBUG:  url - web:', url+'  -  '+web);
-          setCurrentUrl(url);
-          if (url === web) {
-            // login effettuato con successo
-            clearInterval(timerRef.current);
-            clearTimeout(timerRef.current);
-            setStage(2);
-          }
-        }
-      }
-    } catch (err) {
-      // mostra l'errore
-      setError('Errore nella ricezione dei messaggi del dispositivo.\n'.err);
-      setStage(9);
-    }
-  };
-
-  // connessione app
+  // connessione al registro
   const connect = async () => {
-    // inizializza dati
-    const url = web + 'app/device';
-    const urlLogout = web + 'logout/';
-    let errorFlag = false;
-    // crea codice univoco per il dispositivo
-    const device = await createDeviceId();
-    if (!device) {
-      // errore
-      setError('Errore nella generazione dell\'ID del dispositivo.\n');
-      errorFlag = true;
-    } else {
-      // associa dispositivo
-      const response = await fetch(url, {
+    try {
+      const urlRequest = web + 'api/auth/request';
+      const response = await fetch(urlRequest, {
         method: 'POST',
         headers: {
           'User-Agent': userAgent,
           'Accept': 'application/json',
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ device: device })
+        body: JSON.stringify({ dispositivoId: deviceId }),
       });
-      // controlla risposta
-      if (response.ok) {
-        // associazione eseguita: memorizza token
-        try {
-          const data = await response.json();
-          SecureStore.setItem('token', data['token']);
-        } catch (err) {
-          setError('Errore nella memorizzazione del token.\n' + err);
-          errorFlag = true;
-        }
-      } else {
-        setError('Errore nell\'associazione del dispositivo.\n');
-        errorFlag = true;
-      }
-    }
-    // logout dal registro
-    await fetch(urlLogout, {
-      method: 'GET',
-      headers: {
-        'User-Agent': userAgent,
-      },
-    });
-    if (errorFlag) {
-      // mostra l'errore
-      setStage(9);
-    } else {
-      // passo finale
-      setStage(3);
-    }
-  }
 
-  // inizia la procedura di registrazione
-  const start = () => {
-    // stato di attesa
-    setStage(1);
-    // imposta il timer per inviare un segnale periodico alla WebView
-    timerRef.current = setInterval(() => {
-      if (webViewRef.current) {
-        webViewRef.current.injectJavaScript(`
-          window.ReactNativeWebView.postMessage(JSON.stringify({ type: 'CLOCK', url: window.location.href }));
-          true;
-        `);
+      if (!response.ok) {
+        throw new Error(`Richiesta fallita (${response.status}).`);
       }
-    }, 100);
-    // imposta una scadenza per evitare blocchi infiniti
-    setTimeout(() => {
-      if (stage === 1) {
-        // se dopo la scadenza non c'è stato un cambio pagina, termina l'attesa
-        clearInterval(timerRef.current);
-        setError('Errore: il dispositivo non ha ricevuto una risposta.');
-        setStage(9);
+      const data = await response.json();
+      const { id, casuale: nonce } = data;
+
+      if (!id || !nonce) {
+        throw new Error('Risposta non valida dal server.');
       }
-    }, 30000);
-    // rimozione del timer
-    return () => clearInterval(timerRef.current);
+
+      const payload = `GS-AUTH-v1\n${id}\n${nonce}`;
+
+      const result = await RNBiometrics.createSignature({
+        payload,
+        promptMessage: 'Autorizza l\'accesso al registro elettronico',
+        keyAlias: DEVICE_KEY_ALIAS,
+      });
+
+      // Distingue esplicitamente un annullamento/fallimento biometrico
+      // da un errore di rete, invece di procedere con una firma assente
+      if (!result.success || !result.signature) {
+        throw new Error(result.error || 'Autenticazione biometrica annullata o non riuscita.');
+      }
+
+      const urlValidate = web + 'api/auth/validate';
+      const responseValidate = await fetch(urlValidate, {
+        method: 'POST',
+        headers: {
+          'User-Agent': userAgent,
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ id, firma: result.signature }),
+      });
+
+      if (!responseValidate.ok) {
+        throw new Error(`Validazione fallita (${responseValidate.status}).`);
+      }
+      const dataValidate = await responseValidate.json();
+      const { code } = dataValidate;
+
+      if (!code) {
+        throw new Error('Il server non ha restituito un codice di accesso valido.');
+      }
+
+      const urlConnect = web + 'api/auth/connect?code=' + encodeURIComponent(code);
+
+      try {
+        browserOpened.current = true;
+        await Linking.openURL(urlConnect);
+      } catch {
+        throw new Error('Impossibile aprire il browser per completare l\'accesso.');
+      }
+    } catch (err) {
+      // Unico punto di gestione errori per l'intero flusso di login:
+      // qualunque fallimento (rete, biometria, validazione, apertura
+      // browser) porta correttamente alla schermata di errore esistente
+      setError(err instanceof Error ? err.message : String(err));
+      setStage(9);
+    }
   };
 
-  // eseguito solo al primo render
+  // Effetto dedicato: innesca connect() quando si entra nello stage 1,
   useEffect(() => {
-    // legge dati dalla memoria
-    const result = SecureStore.getItem('userData');
-    if (result) {
-      const state = JSON.parse(result);
-      setWeb(state.web);
-    } else {
-      // errore
-      setError('Errore nel recupero dei dati memorizzati nel dispositivo.\n');
-      setStage(9);
+    if (stage !== 1 || loginExecuted) {
+      return;
     }
+    setLoginExecuted(true);
+    connect();
+
+  }, [stage, loginExecuted]);
+
+  useEffect(() => {
+    const initialize = async () => {
+      try {
+        let result = await SecureStore.getItem('userData');
+        if (!result) {
+          throw new Error('Errore nel recupero dei dati memorizzati nel dispositivo.');
+        }
+        const state = JSON.parse(result);
+        if (state.web == '' || state.web == null) {
+          throw new Error('Non hai impostato l\'indirizzo web del registro elettronico.');
+        }
+        // Normalizza una sola volta la barra finale, per evitare URL malformate
+        setWeb(state.web.endsWith('/') ? state.web : state.web + '/');
+
+        result = await SecureStore.getItem('dispositivoId');
+        if (!result) {
+          throw new Error('Non hai effettuato la procedura per associare il dispositivo al tuo utente sul registro elettronico.');
+        }
+        setDeviceId(result);
+
+        setStage(1);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : String(err));
+        setStage(9);
+      }
+    }
+    initialize();
   }, []);
 
-  // visualizza pagina
+  useEffect(() => {
+    const stateListener = AppState.addEventListener('change', (next) => {
+      if (next === 'active' && appState.current.match(/inactive|background/) && browserOpened.current) {
+        router.back();
+      }
+      appState.current = next;
+    });
+    return () => stateListener.remove();
+  }, []);
+
+  // visualizzazione pagina
   return (
     <>
-      <Stack.Screen
-        options={{
-          title: 'Associa il dispositivo',
-        }}
-      />
+      <Stack.Screen options={{ title: 'Accedi al registro' }} />
       {stage == 0 && (
         <View style={styles.pageContainer}>
-          <Text style={styles.text}>
-            Questo dispositivo sarà associato al tuo utente sul registro elettronico,
-            in modo che non sia più necessario usare le tue credenziali per collegarti.
-          </Text>
-          <Text style={styles.text}>
-            Dovrai ora effettuare il normale accesso al registro elettronico:
-            successivamente non fare niente, ma rimani in attesa che l'applicazione prenda il controllo
-            per eseguire la registrazione del tuo dispositivo.
-          </Text>
-          <Pressable
-            style={styles.buttonContainer}
-            onPress={start}>
-            <Text style={styles.buttonPrimary}>Associa il dispositivo</Text>
-          </Pressable>
+          <Text style={styles.text}>Esegui l'autenticazione sul tuo dispositivo.</Text>
         </View>
       )}
       {stage == 1 && (
-        <WebView
-          source={{ uri: web + 'logout/' }}
-          onError={(event) => {
-            setError('Errore di connessione\n' + event.nativeEvent.description);
-            setStage(9);
-          }}
-          onHttpError={(event) => {
-            setError('Errore di connessione\n' + event.nativeEvent.description);
-            setStage(9);
-          }}
-          onMessage={navigationChanged}
-          startInLoadingState={true}
-          domStorageEnabled={true}
-          javaScriptEnabled={true}
-          userAgent={userAgent}
-          renderLoading={() => <Waiting />}
-          ref={webViewRef}
-        />
-      )}
-      {stage == 2 && (
-        <View
-          style={styles.pageContainer}
-          onLayout={connect}>
+        <View style={styles.pageContainer}>
+          <Text style={styles.text}>Accesso al registro in corso.</Text>
           <Waiting />
-        </View>
-      )}
-      {stage == 3 && (
-        <View style={styles.modalContainer}>
-          <View style={styles.modalContent}>
-            <Text style={styles.modalTitleSuccess}>DISPOSITIVO ASSOCIATO</Text>
-            <Text style={styles.modalMessage}>La procedura di associazione del dispositivo al tuo utente è stata eseguita correttamente.</Text>
-            <Pressable onPress={() => router.back()}>
-              <Text style={styles.buttonPrimary}>INDIETRO</Text>
-            </Pressable>
-          </View>
         </View>
       )}
       {stage == 9 && (
         <View style={styles.modalContainer}>
           <View style={styles.modalContent}>
             <Text style={styles.modalTitleError}>ERRORE</Text>
-            <Text style={styles.modalMessage}>{error}</Text>
+            <Text style={styles.modalMessage}>{String(error)}</Text>
             <Pressable onPress={() => router.back()}>
               <Text style={styles.buttonPrimary}>INDIETRO</Text>
             </Pressable>
@@ -228,4 +189,5 @@ export default function ConnectScreen() {
       )}
     </>
   );
-};
+
+}

@@ -39,7 +39,7 @@ export default function HomeScreen() {
     } else if (login && !executed) {
       // esegue login automatico
       setExecuted(true);
-      router.push('/login');
+      router.push('/connect');
     }
   };
 
@@ -48,18 +48,18 @@ export default function HomeScreen() {
     useCallback(() => {
       if (!login) {
         // controlla impostazioni
-        let result = SecureStore.getItem('userData');
-        if (result) {
-          const state = JSON.parse(result);
-          if (state.web != '' && state.web != null) {
+        // let result = SecureStore.getItem('userData');
+        // if (result) {
+        //   const state = JSON.parse(result);
+        //   if (state.web != '' && state.web != null) {
             // controlla associazione dispositivo
-            result = SecureStore.getItem('token');
+            const result = SecureStore.getItem('dispositivoId');
             if (result) {
               // abilita il login
               setLogin(true);
             }
-          }
-        }
+      //     }
+        // }
       }
     }, [])
   );
@@ -99,7 +99,7 @@ export default function HomeScreen() {
         {login ?
           <Pressable
             style={styles.spaced}
-            onPress={() => router.push('/login')}>
+            onPress={() => router.push('/connect')}>
             <Text style={styles.buttonPrimary}>Accedi al registro</Text>
           </Pressable>
           :
@@ -114,7 +114,7 @@ export default function HomeScreen() {
         </Pressable>
         <Pressable
           style={styles.spaced}
-          onPress={() => router.push('/connect')}>
+          onPress={() => router.push('/register')}>
           <Text style={styles.buttonSecondary}>Associa il dispositivo</Text>
         </Pressable>
         <Pressable

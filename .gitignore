@@ -1,5 +1,6 @@
 /.expo/
 /.vscode/
 /android/
+/ios/
 /node_modules/
 /credentials.json

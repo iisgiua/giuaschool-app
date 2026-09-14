@@ -35,6 +35,12 @@ export default {
       "expo-font",
       "expo-status-bar",
       [
+        "react-native-easy-biometrics",
+        {
+          "faceIDPermission": "Consenti di usare il Face ID per l'accesso sicuro"
+        }
+      ],
+      [
         "expo-screen-orientation",
         {
           "initialOrientation": "DEFAULT"
