@@ -167,4 +167,13 @@ ENV NODE_ENV=development
 # Porta del Metro bundler (server di sviluppo Expo)
 EXPOSE 8081
 
+# ------------------------------------------------------------
+# Entrypoint: installa le dipendenze del progetto montato (se
+# presente un package.json) prima di lanciare la shell, così
+# non serve ricordarsi di farlo manualmente ad ogni "docker run".
+# ------------------------------------------------------------
+COPY --chown=${USER_UID}:${USER_GID} docker/entrypoint.sh /usr/local/bin/entrypoint.sh
+RUN sudo chmod +x /usr/local/bin/entrypoint.sh
+
+ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
 CMD ["/bin/bash"]

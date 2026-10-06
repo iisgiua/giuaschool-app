@@ -1,5 +1,5 @@
 const appName = "giua@school/app";
-const appVersion = "3.1.4";
+const appVersion = "3.2.0";
 
 export default {
   "expo": {
@@ -61,7 +61,15 @@ export default {
             "minSdkVersion": 24
           }
         }
-      ]
+      ],
+      [
+        "expo-navigation-bar",
+        {
+          "enforceContrast": false,
+          "style": "dark",
+          "hidden": false
+        }
+      ],
     ],
     "extra": {
       "version": `${appName} ${appVersion}`,

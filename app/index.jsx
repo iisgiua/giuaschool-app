@@ -4,125 +4,111 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-import { useFocusEffect } from 'expo-router';
+
 import Constants from 'expo-constants';
-import { Stack, useRouter } from "expo-router";
-import * as SecureStore from 'expo-secure-store';
-import { useCallback, useEffect, useState } from "react";
-import { Image, ScrollView, Text, View } from "react-native";
-import logo from '../assets/logo.png';
-import Pressable from '../components/PressableComponent';
-import { checkUpdates } from '../utils/CheckUpdates';
-import { styles } from "./_layout";
+import { useFocusEffect, useRouter } from 'expo-router';
+import { View } from 'react-native';
+import { useCallback, useState } from 'react';
+import Waiting from '../components/WaitingComponent';
+import { styles } from '../styles/AppStyles';
+import { getDeviceId, getLastUpdateCheck, getWebSite, isAboutSeen, setWebSite } from '../utils/Storage';
+
+
+// indica se avvio automatico già eseguito
+let connectExecuted = false;
 
 
 // **
-// * Pagina iniziale dell'app
+// * Pagina iniziale che richiama automaticamente le altre funzioni
 // *
 // * @author Antonello Dessì
 // *
-export default function HomeScreen() {
+export default function IndexScreen() {
 
   // inizializza
-  const [login, setLogin] = useState(false);
-  const [executed, setExecuted] = useState(false);
   const router = useRouter();
 
-  // controlla se prima esecuzione
-  const checkVersion = () => {
-    // controlla se installata nuova versione
-    const result = SecureStore.getItem('version');
-    if (!result || result !== Constants.expoConfig.extra.version) {
-      // nuova versione
-      SecureStore.setItem('version', Constants.expoConfig.extra.version);
-      router.push('/about');
-    } else if (login && !executed) {
-      // esegue login automatico
-      setExecuted(true);
-      router.push('/connect');
-    }
+  // restituisce la data odierna nel formato YYYY-MM-DD
+  const todayString = () => {
+    const dt = new Date();
+    const month = String(dt.getMonth() + 1).padStart(2, '0');
+    const day = String(dt.getDate()).padStart(2, '0');
+    return `${dt.getFullYear()}-${month}-${day}`;
   };
 
-  // controlli eseguiti ad ogni visualizzazione
+  // eseguita ogni volta che la pagina torna in primo piano
   useFocusEffect(
     useCallback(() => {
-      if (!login) {
-        // controlla impostazioni
-        // let result = SecureStore.getItem('userData');
-        // if (result) {
-        //   const state = JSON.parse(result);
-        //   if (state.web != '' && state.web != null) {
-            // controlla associazione dispositivo
-            const result = SecureStore.getItem('dispositivoId');
-            if (result) {
-              // abilita il login
-              setLogin(true);
+      // controlla se la pagina è attiva
+      let isActive = true;
+      // procedura che valuta quale funzione eseguire
+      const evaluateRoute = async () => {
+        try {
+          // va alla pagina informativa: solo se mai vista prima
+          if (!isAboutSeen()) {
+            if (isActive) {
+              router.replace('/about');
             }
-      //     }
-        // }
-      }
+            return;
+          }
+          // va alle impostazioni: solo se indirizzo è vuoto
+          if (!getWebSite()) {
+            if (Constants.expoConfig.extra.url) {
+              // salva URL precompilata e continua il flusso di controllo
+              await setWebSite(Constants.expoConfig.extra.url);
+            } else {
+              if (isActive) {
+               router.replace('/settings');
+              }
+              return;
+            }
+          }
+          // va alla registrazione: solo se dispositivo non registrato
+          if (!getDeviceId()) {
+            if (isActive) {
+              router.replace('/register');
+            }
+            return;
+          }
+          // controllo aggiornamenti: solo una volta al giorno
+          if (getLastUpdateCheck() !== todayString()) {
+            if (isActive) {
+              router.replace('/updates');
+            }
+            return;
+          }
+          // accesso automatico al registro: solo se non ancora eseguito dall'avvio dell'app
+          if (!connectExecuted) {
+            connectExecuted = true;
+            if (isActive) {
+              router.replace('/connect');
+            }
+            return;
+          }
+          // va al menu in ogni altro caso
+          if (isActive) {
+            router.replace('/menu');
+          }
+        } catch (err) {
+          // errore dati illeggibili: va al menu
+          if (isActive) {
+            router.replace('/menu');
+          }
+        }
+      };
+      // esegue procedura di indirizzamento alle pagine
+      evaluateRoute();
+      return () => {
+        isActive = false;
+      };
     }, [])
   );
 
-  // eseguito solo al primo render
-  useEffect(() => {
-    // controlla aggiornamenti
-    checkUpdates().then((res) => {
-      if (res) {
-        // aaggiornamenti presenti
-        router.push('/updates');
-      }
-    });
-  });
-
-  // visualizza pagina
+  // visualizzazione pagina
   return (
-    <ScrollView
-      onLayout={checkVersion}
-      style={styles.pageContainer}>
-      <Stack.Screen
-        options={{
-          title: 'Pagina iniziale',
-        }}
-      />
-      <View style={styles.logoContainer}>
-        <Image
-          style={styles.logo}
-          source={logo}
-        />
-        <Text style={styles.logoLabel}>{Constants.expoConfig.extra.version}</Text>
-        {Constants.expoConfig.extra.school != '' &&
-          <Text style={styles.schoolLabel}>{Constants.expoConfig.extra.school}</Text>
-        }
-      </View>
-      <View style={styles.spacedContainer}>
-        {login ?
-          <Pressable
-            style={styles.spaced}
-            onPress={() => router.push('/connect')}>
-            <Text style={styles.buttonPrimary}>Accedi al registro</Text>
-          </Pressable>
-          :
-          <View style={styles.spaced}>
-            <Text style={styles.buttonDisabled}>Accedi al registro</Text>
-          </View>
-        }
-        <Pressable
-          style={styles.spaced}
-          onPress={() => router.push('/settings')}>
-          <Text style={styles.buttonSecondary}>Impostazioni</Text>
-        </Pressable>
-        <Pressable
-          style={styles.spaced}
-          onPress={() => router.push('/register')}>
-          <Text style={styles.buttonSecondary}>Associa il dispositivo</Text>
-        </Pressable>
-        <Pressable
-          style={styles.spaced}
-          onPress={() => router.push('/about')}>
-          <Text style={styles.buttonSecondary}>Informazioni</Text>
-        </Pressable>
-      </View>
-    </ScrollView>
+    <View style={styles.pageContainer}>
+      <Waiting />
+    </View>
   );
+
 }

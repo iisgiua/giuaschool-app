@@ -4,8 +4,9 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
+
 import { ActivityIndicator, Text, View } from 'react-native';
-import { styles } from '../app/_layout';
+import { styles } from '../styles/AppStyles';
 
 
 // **
@@ -18,8 +19,7 @@ export default function WaitingComponent() {
   // mostra componente
   return (
     <View style={styles.activityContainer}>
-      <ActivityIndicator
-        color='#0000ff'
+      <ActivityIndicator color='#0000ff'
         size='large'
       />
       <Text style={styles.text}>Attendi...</Text>

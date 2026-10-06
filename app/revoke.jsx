@@ -7,7 +7,7 @@
 
 import { Stack, useRouter } from 'expo-router';
 import { Text, View } from 'react-native';
-import RNBiometrics, { KeyType } from 'react-native-easy-biometrics';
+import RNBiometrics from 'react-native-easy-biometrics';
 import { WebView } from 'react-native-webview';
 import { useEffect, useRef, useState } from 'react';
 import Pressable from '../components/PressableComponent';
@@ -15,44 +15,27 @@ import Waiting from '../components/WaitingComponent';
 import { styles } from '../styles/AppStyles';
 import { APP_CONSTANTS } from '../utils/AppConstants';
 import { closePage } from '../utils/Navigation';
-import { getWebSite, setDeviceId } from '../utils/Storage';
+import { getWebSite, clearDeviceId, getDeviceId } from '../utils/Storage';
 
 
 // **
-// * Pagina per la procedura di registrazione del dispositivo.
+// * Pagina per la procedura di revoca del dispositivo.
 // *
 // * @author Antonello Dessì
 // *
-export default function RegisterScreen() {
+export default function RevokeScreen() {
 
   // inizializza
   const [web, setWeb] = useState('');
+  const [device, setDevice] = useState('');
   const [stage, setStage] = useState(0);
   const [error, setError] = useState('');
   const [currentUrl, setCurrentUrl] = useState('');
-  const [registerExecuted, setRegisterExecuted] = useState(false);
+  const [revokeExecuted, setRevokeExecuted] = useState(false);
   const router = useRouter();
   const webViewRef = useRef(null);
   const timerRef = useRef(null);
   const timeoutRef = useRef(null);
-
-  // crea la coppia di chiavi di cifratura e restituisce la chiave pubblica
-  const deviceKeyPair = async () => {
-    // elimina un'eventuale coppia di chiavi preesistente
-    try {
-      await RNBiometrics.deleteKeys(APP_CONSTANTS.DEVICE_KEY);
-    } catch {
-      // nessuna chiave preesistente: nessun errore
-    }
-    // crea la nuova coppia di chiavi di cifratura
-    const result = await RNBiometrics.createKeys(APP_CONSTANTS.DEVICE_KEY, KeyType.EC256);
-    // controlla che le chiavi generate
-    if (!result?.publicKey) {
-      throw new Error('La generazione del certificato digitale del dispositivo è fallita.');
-    }
-    // restituisce la nuova chiave pubblica
-    return result.publicKey;
-  };
 
   // resetta il timeout di inattività ad ogni cambio pagina
   const resetInactivityTimeout = () => {
@@ -65,21 +48,9 @@ export default function RegisterScreen() {
         timerRef.current = null;
       }
       timeoutRef.current = null;
-      setError('Tempo scaduto: non è stato rilevato l\'accesso al registro elettronico.\n\nRiprova la procedura di registrazione del dispositivo.');
+      setError('Tempo scaduto: non è stata rilevato l\'accesso al registro elettronico.\n\nRiprova la procedura di revoca della registrazione.');
       setStage(9);
     }, APP_CONSTANTS.CONNECT_TIMEOUT);
-  };
-
-  // ferma i timer
-  const stopTimers = () => {
-    if (timerRef.current) {
-      clearInterval(timerRef.current);
-      timerRef.current = null;
-    }
-    if (timeoutRef.current) {
-      clearTimeout(timeoutRef.current);
-      timeoutRef.current = null;
-    }
   };
 
   // evento eseguito per il controllo della navigazione della WEBVIEW
@@ -100,52 +71,55 @@ export default function RegisterScreen() {
           // controlla se è stato completato il login
           if (url === homeUrl || url === profileUrl) {
             // login avvenuto con successo: cancella i timer
-            stopTimers();
+            if (timerRef.current) {
+              clearInterval(timerRef.current);
+              timerRef.current = null;
+            }
+            if (timeoutRef.current) {
+              clearTimeout(timeoutRef.current);
+              timeoutRef.current = null;
+            }
             // va al passo successivo
             setStage(2);
           }
         }
       }
     } catch (err) {
-      stopTimers();
       setError('Impossibile rilevare l\'accesso al registro elettronico.\n\n' +
         (err instanceof Error ? err.message : String(err)));
       setStage(9);
     }
   };
 
-  // procedura di registrazione del dispositivo
-  const register = async () => {
-    const registerUrl = web + APP_CONSTANTS.REGISTER_URL;
+  // procedura di revoca del dispositivo
+  const revoke = async () => {
+    const revokeUrl = web + APP_CONSTANTS.REVOKE_URL;
     const logoutUrl = web + APP_CONSTANTS.LOGOUT_URL;
     try {
-      // genera la coppia di chiavi di cifratura e memorizza la chiave pubblica
-      const publicKey = await deviceKeyPair();
-      const response = await fetch(registerUrl, {
+      // elimina la coppia di chiavi di cifratura
+      try {
+        await RNBiometrics.deleteKeys(APP_CONSTANTS.DEVICE_KEY);
+      } catch {
+        // nessuna chiave preesistente: nessun errore
+      }
+      const response = await fetch(revokeUrl, {
         method: 'POST',
         headers: {
           'User-Agent': APP_CONSTANTS.BACKEND_UA,
           'Accept': 'application/json',
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ chiavePubblica: publicKey }),
+        body: JSON.stringify({ dispositivoId: device }),
       });
       if (!response.ok) {
-        // impossibile eseguire la registrazione: se il server risponde con codice 401/403
+        // impossibile eseguire la revoca: se il server risponde con codice 401/403
         // può essere che la sessione WEBVIEW non sia stata condivisa con il FETCH
          throw new Error(`[${response.status}]`);
       }
-      const data = await response.json();
-      if (!data?.dispositivoId) {
-        // errore nei dati restituiti
-        throw new Error('[101]');
-      }
-      // memorizza l'identificativo del dispositivo
-      await setDeviceId(data.dispositivoId);
       // va al passo successivo
       setStage(3);
     } catch (err) {
-      setError("Errore nella registrazione del dispositivo.\nRiprova più tardi.\n\n" +
+      setError("Errore nella revoca della registrazione.\nRiprova più tardi.\n\n" +
         (err instanceof Error ? err.message : String(err)));
       setStage(9);
     } finally {
@@ -158,10 +132,16 @@ export default function RegisterScreen() {
       } catch {
         // errore sul logout, utente forse già disconesso: non fa nulla
       }
+      // elimina l'identificativo del dispositivo
+      try {
+        await clearDeviceId();
+      } catch {
+        // errore sulla rimozione dell'identificativo del dispositivo: non fa nulla
+      }
     }
   };
 
-  // fa partire la procedura di registrazione
+  // fa partire la procedura di revoca
   const start = () => {
     // imposta il passo successivo
     setStage(1);
@@ -184,6 +164,7 @@ export default function RegisterScreen() {
   useEffect(() => {
     const initialize = async () => {
       let url = '';
+      let devId = '';
       try {
         // legge URL del registro elettronico
         url = getWebSite();
@@ -193,6 +174,14 @@ export default function RegisterScreen() {
         }
         // memorizza l'URL del registro elettronico
         setWeb(url);
+        // legge identificativo del dispositivo
+        devId = getDeviceId();
+        if (!devId) {
+          // errore: identificativo del dispositivo non presente
+          throw new Error('L\'identificativo del dispositivo non è presente.\n\nForse la registrazione è già stata revocata.');
+        }
+        // memorizza l'identificativo del dispositivo
+        setDevice(devId);
       } catch (err) {
         setError(err instanceof Error ? err.message : String(err));
         setStage(9);
@@ -200,42 +189,49 @@ export default function RegisterScreen() {
     };
     initialize();
     return () => {
-      // resetta i timer
-      stopTimers();
+      // azzera i timer
+      if (timerRef.current) {
+        clearInterval(timerRef.current);
+        timerRef.current = null;
+      }
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+        timeoutRef.current = null;
+      }
     };
   }, []);
 
-  // eseguito ad ogni modifica delle variabili: stage, registerExecuted
-  // impedisce che la registrazione possa essere eseguita più volte
+  // eseguito ad ogni modifica delle variabili: stage, revokeExecuted
+  // impedisce che la revoca possa essere eseguita più volte
   useEffect(() => {
-    if (stage !== 2 || registerExecuted) {
-      // non è il passo 2 oppure la registrazione è stata già eseguita
+    if (stage !== 2 || revokeExecuted) {
+      // non è il passo 2 oppure la revoca è stata già eseguita
       return;
     }
-    // segna la registrazione avventa
-    setRegisterExecuted(true);
-    // esegue la registrazione
-    register();
-  }, [stage, registerExecuted]);
+    // segna la revoca avventa
+    setRevokeExecuted(true);
+    // esegue la revoca
+    revoke();
+  }, [stage, revokeExecuted]);
 
   // visualizza pagina
   return (
     <>
-      <Stack.Screen options={{ title: 'Registra il dispositivo' }} />
+      <Stack.Screen options={{ title: 'Revoca il dispositivo' }} />
 
       {stage == 0 && (
         <View style={styles.pageContainer}>
           <Text style={styles.text}>
-            Questo dispositivo sarà associato al tuo utente sul registro elettronico
-            tramite un apposito certificato digitale.
+            La registrazione di questo dispositivo sul registro elettronico sarà revocata,
+            annullando l'associazione con il tuo utente.
           </Text>
           <Text style={styles.text}>
             Ora esegui il normale accesso al registro elettronico usando le tue credenziali,
             poi rimani in attesa che l'applicazione prenda il controllo
-            per completare la registrazione del dispositivo.
+            per completare la revoca della registrazione.
           </Text>
           <Pressable style={styles.buttonContainer} onPress={start}>
-            <Text style={styles.buttonPrimary}>Registra il dispositivo</Text>
+            <Text style={styles.buttonPrimary}>Revoca la registrazione</Text>
           </Pressable>
         </View>
       )}
@@ -246,12 +242,10 @@ export default function RegisterScreen() {
           // condivisione della sessione tra WEBVIEW e FETCH (fondamentale su iOS)
           sharedCookiesEnabled={true}
           onError={(event) => {
-            stopTimers();
             setError('Errore di connessione\n' + event.nativeEvent.description);
             setStage(9);
           }}
           onHttpError={(event) => {
-            stopTimers();
             setError('Errore di connessione\n' + event.nativeEvent.description);
             setStage(9);
           }}
@@ -274,8 +268,8 @@ export default function RegisterScreen() {
       {stage == 3 && (
         <View style={styles.modalContainer}>
           <View style={styles.modalContent}>
-            <Text style={styles.modalTitleSuccess}>DISPOSITIVO REGISTRATO</Text>
-            <Text style={styles.modalMessage}>La procedura di registrazione del dispositivo è stata eseguita correttamente.</Text>
+            <Text style={styles.modalTitleSuccess}>REGISTRAZIONE REVOCATA</Text>
+            <Text style={styles.modalMessage}>La procedura di revoca della registrazione è stata eseguita correttamente.</Text>
             <Pressable onPress={() => closePage(router, 0)}>
               <Text style={styles.buttonPrimary}>INDIETRO</Text>
             </Pressable>

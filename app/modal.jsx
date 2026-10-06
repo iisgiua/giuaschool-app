@@ -4,10 +4,12 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
+
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Modal, Text, View } from 'react-native';
 import Pressable from '../components/PressableComponent';
-import { styles } from './_layout';
+import { styles } from '../styles/AppStyles';
+import { closePage } from '../utils/Navigation';
 
 
 // **
@@ -16,6 +18,7 @@ import { styles } from './_layout';
 // *    type:   E=errore, S=successo, M=messaggio
 // *    title:  testo dell'intestazione
 // *    msg:    testo del messaggio
+// *    ret:    se è 1 forza il ritorno alla pagina radice
 // *
 // * @author Antonello Dessì
 // *
@@ -23,25 +26,27 @@ export default function ModalScreen() {
 
   // inizializza
   const router = useRouter();
-  const { type, title, msg } = useLocalSearchParams(); // estrae parametri
+  const { type, title, msg, ret } = useLocalSearchParams(); // estrae parametri
 
   // visualizza pagina
   return (
-    <Modal
-      animationType='slide'
+    <Modal animationType='slide'
       transparent={true}
       visible={true}
       onRequestClose={() => router.back()}
     >
+
       <View style={styles.modalContainer}>
         <View style={styles.modalContent}>
           <Text style={type == 'E' ? styles.modalTitleError : (type == 'S' ? styles.modalTitleSuccess : styles.modalTitle)}>{title}</Text>
           <Text style={styles.modalMessage}>{msg}</Text>
-          <Pressable onPress={() => router.back()}>
+          <Pressable onPress={() => closePage(router, ret)}>
             <Text style={styles.buttonPrimary}>CHIUDI</Text>
           </Pressable>
         </View>
       </View>
+
     </Modal>
   );
+
 }
