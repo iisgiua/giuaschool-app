@@ -18,7 +18,7 @@ export const APP_CONSTANTS = Object.freeze({
   // identificativo per le chiavi di cifratura
   DEVICE_KEY: 'it.iisgiua.giuaschoolapp.device_identity_key',
   // scadenza in ms per l'attesa dell'avvenuta connessione tramite SPID/CIE (3 minuti tra ogni cambio pagina)
-  CONNECT_TIMEOUT: 3 * 60 * 1000,
+  CONNECT_TIMEOUT: 5 * 60 * 1000,
   // user-agent per le chiamate dirette al backend
   BACKEND_UA: `${Constants.expoConfig.extra.version} (${Platform.OS})`,
   // user-agent per le chiamate tramite WEBVIEW per l'autenticazione SPID/CIE
