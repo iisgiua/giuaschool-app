@@ -36,5 +36,6 @@ exec "$@"
 #       adb reverse tcp:8081 tcp:8081
 #
 #   Compilazione versione di produzione
-#       eas build --platform androi --profile custom --local --output ./dist/giuaschool-app-CUSTOM-3.2.1.apk
+#       eas build --platform android --profile custom --local --output ./dist/giuaschool-app-CUSTOM-3.2.1.apk
+#       eas build --platform android --profile prod --local --output ./dist/giuaschool-app-3.2.1.apk
 #
