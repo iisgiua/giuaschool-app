@@ -2,5 +2,7 @@
 /.vscode/
 /android/
 /ios/
+/keystores/
 /node_modules/
+/assetlinks.json
 /credentials.json

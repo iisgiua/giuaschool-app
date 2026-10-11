@@ -1,5 +1,9 @@
 const appName = "giua@school/app";
-const appVersion = "3.2.0";
+const appVersion = "3.2.1";
+
+// vero solo quando la build usa il profilo CUSTOM di eas.json
+const isCustom = !!process.env.URL;
+
 
 export default {
   "expo": {
@@ -24,6 +28,23 @@ export default {
       "permissions": [
         "android.permission.INTERNET"
       ],
+      "intentFilters": (isCustom ? [
+        {
+          "action": "VIEW",
+          "autoVerify": true,
+          "category": [
+            "BROWSABLE",
+            "DEFAULT"
+          ],
+          "data": [
+            {
+              "scheme": "https",
+              "host": "registro.giua.edu.it",
+              "pathPrefix": "/api/auth/request"
+            }
+          ]
+        }
+      ] : []),
     },
     "web": {
       "favicon": "./assets/favicon.png"
@@ -37,7 +58,7 @@ export default {
       [
         "react-native-easy-biometrics",
         {
-          "faceIDPermission": "Consenti di usare il Face ID per l'accesso sicuro"
+          "faceIDPermission": "Consenti di usare il riconoscimento del volto per l'accesso sicuro"
         }
       ],
       [

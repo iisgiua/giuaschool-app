@@ -15,17 +15,26 @@ exec "$@"
 # Comandi utili:
 #
 #   Aggiorna/installa (EXPO)
-#       npx expo install
+#       npx expo install --check
+#
+#   Constrollo vulnerbilità escluse quelle di sviluppo
+#       npm audit --omit dev
 #
 #   Controllo dipendenze (EXPO)
 #       npx expo-doctor@latest
 #
-#   Compilazione Android
+#   Compilazione locale Android per debug
 #       rm -rf android
 #       npx expo prebuild --platform android --clean
 #       cd android && ./gradlew assembleDebug
 #       cd ..
 #
+#   Esecuzione build locale (via USB) o Expo Go
+#       npx expo start
+#
 #   Dal computer host, per associare la porta del debugger verso l'USB
 #       adb reverse tcp:8081 tcp:8081
+#
+#   Compilazione versione di produzione
+#       eas build --platform androi --profile custom --local --output ./dist/giuaschool-app-CUSTOM-3.2.1.apk
 #

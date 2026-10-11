@@ -11,16 +11,16 @@
     "preview": {
       "environment": "preview",
       "distribution": "internal",
+      "credentialsSource": "local",
       "android": {
-        "withoutCredentials": true,
         "buildType": "apk"
       }
     },
     "custom": {
       "environment": "production",
       "distribution": "internal",
+      "credentialsSource": "local",
       "android": {
-        "withoutCredentials": true,
         "buildType": "apk"
       },
       "env": {
@@ -31,8 +31,8 @@
     "prod": {
       "environment": "production",
       "distribution": "internal",
+      "credentialsSource": "local",
       "android": {
-        "withoutCredentials": true,
         "buildType": "apk"
       }
     }

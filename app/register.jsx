@@ -9,6 +9,7 @@ import { Stack, useRouter } from 'expo-router';
 import { Text, View } from 'react-native';
 import RNBiometrics, { KeyType } from 'react-native-easy-biometrics';
 import { WebView } from 'react-native-webview';
+import { AppState } from 'react-native';
 import { useEffect, useRef, useState } from 'react';
 import Pressable from '../components/PressableComponent';
 import Waiting from '../components/WaitingComponent';
@@ -31,10 +32,28 @@ export default function RegisterScreen() {
   const [error, setError] = useState('');
   const [currentUrl, setCurrentUrl] = useState('');
   const [registerExecuted, setRegisterExecuted] = useState(false);
+  const [biometricsReady, setBiometricsReady] = useState(null);
   const router = useRouter();
   const webViewRef = useRef(null);
   const timerRef = useRef(null);
   const timeoutRef = useRef(null);
+
+  // effettua il controllo dello stato del sensore
+  const checkBiometrics = async () => {
+    if (stage !== 0) {
+      // evita che sia eseguito in altri passi della registrazione
+      return;
+    }
+    // legge lo stato del sensore biometrico
+    const status = await RNBiometrics.getStatus();
+    if (status.available && status.enrolled) {
+      // sensore compatibile e presenza di dati biometrici
+      setBiometricsReady('ok');
+      return;
+    }
+    // sensore non compatibile o non presente
+    setBiometricsReady('none');
+  };
 
   // crea la coppia di chiavi di cifratura e restituisce la chiave pubblica
   const deviceKeyPair = async () => {
@@ -180,7 +199,7 @@ export default function RegisterScreen() {
     resetInactivityTimeout();
   };
 
-  // eseguito solo al primo render
+  // eseguito solo al primo render (inizializzazione)
   useEffect(() => {
     const initialize = async () => {
       let url = '';
@@ -205,6 +224,17 @@ export default function RegisterScreen() {
     };
   }, []);
 
+  // eseguito solo ogni volta che torna in primo piano
+  useEffect(() => {
+    const listener = AppState.addEventListener('change', (next) => {
+      if (next === 'active') {
+        checkBiometrics();
+      }
+    });
+    checkBiometrics();
+    return () => listener.remove();
+  }, []);
+
   // eseguito ad ogni modifica delle variabili: stage, registerExecuted
   // impedisce che la registrazione possa essere eseguita più volte
   useEffect(() => {
@@ -225,18 +255,45 @@ export default function RegisterScreen() {
 
       {stage == 0 && (
         <View style={styles.pageContainer}>
-          <Text style={styles.text}>
-            Questo dispositivo sarà associato al tuo utente sul registro elettronico
-            tramite un apposito certificato digitale.
-          </Text>
-          <Text style={styles.text}>
-            Ora esegui il normale accesso al registro elettronico usando le tue credenziali,
-            poi rimani in attesa che l'applicazione prenda il controllo
-            per completare la registrazione del dispositivo.
-          </Text>
-          <Pressable style={styles.buttonContainer} onPress={start}>
-            <Text style={styles.buttonPrimary}>Registra il dispositivo</Text>
-          </Pressable>
+          {biometricsReady === null && (
+            <Waiting />
+          )}
+
+          {biometricsReady === 'none'  && (
+            <>
+              <Text style={styles.text}>
+                Questo telefono non dispone di un metodo di autenticazione biometrica compatibile.
+              </Text>
+              <Text style={styles.text}>
+                Per usare l'app, devi configurare nel telefono l'uso delle impronte digitali o
+                del riconoscimento del volto.{"\n\n"}
+                Spesso il riconoscimento del volto non offre una protezione adeguata:
+                pertanto su molti telefoni non viene riconosciuto come autenticazione biometrica utilizzabile.
+              </Text>
+              <Text style={styles.title}>
+                Chiudi l'app, apri le impostazioni del telefono, configura l'impronta digitale
+                o il riconoscimento del volto, quindi riprova la registrazione.
+              </Text>
+            </>
+          )}
+
+          {biometricsReady === 'ok' && (
+            <>
+              <Text style={styles.text}>
+                Questo dispositivo sarà associato al tuo utente sul registro elettronico
+                tramite un apposito certificato digitale.
+              </Text>
+              <Text style={styles.text}>
+                Ora esegui il normale accesso al registro elettronico usando le tue credenziali,
+                poi rimani in attesa che l'applicazione prenda il controllo
+                per completare la registrazione del dispositivo.
+              </Text>
+              <Pressable style={styles.buttonContainer} onPress={start}>
+                <Text style={styles.buttonPrimary}>Registra il dispositivo</Text>
+              </Pressable>
+            </>
+          )}
+
         </View>
       )}
 
