@@ -18,7 +18,7 @@
     },
     "custom": {
       "environment": "production",
-      "distribution": "internal",
+      "distribution": "store",
       "credentialsSource": "local",
       "android": {
         "buildType": "apk"
@@ -30,7 +30,7 @@
     },
     "prod": {
       "environment": "production",
-      "distribution": "internal",
+      "distribution": "store",
       "credentialsSource": "local",
       "android": {
         "buildType": "apk"
