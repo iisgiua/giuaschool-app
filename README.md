@@ -12,9 +12,9 @@ L'app è utilizzabile da tutti gli utenti.
 
 Per utilizzare l'app sul proprio dispositivo, sarà necessario attivare l'opzione che consente l'installazione da fonti sconosciute, ignorando eventuali avvisi di sicurezza.
 
-**ATTENZIONE: l'app si può utilizzare solo con giua@school versione 1.6.0 o superiore.**
+**ATTENZIONE: l'app si può utilizzare solo con giua@school versione 1.6.4 o superiore.**
 
 
 ## Scarica l'app giua@school/app
 
-[giua@school/app v3.1.4](https://github.com/iisgiua/giuaschool-app/raw/refs/heads/master/dist/giuaschool-app-1.3.4.apk)
+[giua@school/app v3.2.1](https://github.com/iisgiua/giuaschool-app/raw/refs/heads/master/dist/giuaschool-app-3.2.1.apk)
